@@ -537,13 +537,13 @@
             }
         }
 
- // --- ▼ fetchAndRenderArticles 関数の置き換え ▼ ---
-async function fetchAndRenderArticles(category = 'All') {
+       // --- ▼ fetchAndRenderArticles 関数の置き換え ▼ ---
+       async function fetchAndRenderArticles(category = 'All') {
     const container = pageElements.articlesGrid;
     container.innerHTML = '<p>読み込み中...</p>';
     
     let filter = {};
-    // "All"タブの場合はFeaturedのみ、それ以外はカテゴリーでフィルタリング
+    // "All"タブの場合はFeaturedのみ
     if (category === 'All') {
         filter = {
             property: PROP_NAMES.article.featured,
@@ -552,28 +552,19 @@ async function fetchAndRenderArticles(category = 'All') {
             }
         };
     } else {
+        // それ以外はカテゴリーのみでフィルタリング（Featuredは無視）
         filter = {
-            and: [
-                {
-                    property: PROP_NAMES.article.category,
-                    select: {
-                        equals: category
-                    }
-                },
-                {
-                    property: PROP_NAMES.article.featured,
-                    checkbox: {
-                        equals: true
-                    }
-                }
-            ]
+            property: PROP_NAMES.article.category,
+            select: {
+                equals: category
+            }
         };
     }
     
     const sorts = [
         {
             property: PROP_NAMES.article.created_time,
-            direction: 'descending'
+            direction: 'ascending'  // 古い順に変更
         }
     ];
 
