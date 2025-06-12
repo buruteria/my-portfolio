@@ -55,6 +55,7 @@
             padding: 40px;
             display: flex;
             flex-direction: column;
+            z-index: 1001;
         }
         .sidebar h1 {
             font-size: 24px;
@@ -96,6 +97,28 @@
             display: block;
         }
 
+        /* --- ハンバーガーメニュー --- */
+        .hamburger-btn {
+            display: none; /* PCでは非表示 */
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: none;
+            z-index: 1002;
+            cursor: pointer;
+        }
+        .hamburger-btn span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background-color: var(--accent-color);
+            margin: 5px auto;
+            transition: all 0.3s;
+        }
+
         .section-title {
             font-size: 36px;
             margin-bottom: 30px;
@@ -114,7 +137,6 @@
             color: var(--bg-color);
         }
 
-        /* --- TOPページ --- */
         .main-visual {
             width: 100%;
             height: 60vh;
@@ -286,24 +308,41 @@
         .project-modal-close { position: absolute; top: 20px; right: 20px; font-size: 30px; cursor: pointer; }
 
         @media (max-width: 1024px) {
-            .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); padding: 20px; flex-direction: row; justify-content: space-between; align-items: center; }
-            .sidebar h1 { margin-bottom: 0; }
-            .sidebar nav ul { display: flex; gap: 15px; }
-            .sidebar nav li { margin-bottom: 0; }
-            .main-content { margin-left: 0; width: 100%; padding: 40px; }
-            .grid-3-col, .grid-2-col { grid-template-columns: repeat(2, 1fr); }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            .sidebar.is-open {
+                transform: translateX(0);
+                box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .hamburger-btn {
+                display: block;
+            }
+            .grid-3-col, .grid-2-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         @media (max-width: 768px) {
             .grid-3-col, .grid-2-col { grid-template-columns: 1fr; }
             .project-modal { width: 90%; }
-            .sidebar { flex-direction: column; align-items: flex-start; }
-            .sidebar nav { margin-top: 20px; }
+            .main-content { padding: 40px 20px; }
         }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
+    <button id="hamburger-btn" class="hamburger-btn">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    
+    <aside class="sidebar" id="sidebar">
         <div>
             <h1>T. Ishida</h1>
             <nav>
@@ -397,21 +436,31 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
 
+        const ARTICLES_DATABASE_ID = '202fc6b604188067baedcd752b1bb428';
         const PROJECTS_DATABASE_ID = '[ProjectsページのNotionデータベースIDをここに貼り付け]';
         
         const PROP_NAMES = {
             article: {
-                category: 'Content Category', title: 'Title', image: 'OGP Image',
-                url: 'URL', role: 'Role'
+                category: 'Content Category',
+                title: 'Title',
+                image: 'OGP Image',
+                url: 'URL',
+                role: 'Role',
+                created_time: '作成日時' // Notionの「作成日時」プロパティの正式名称
             },
             project: {
-                title: 'Project Name', image: 'Image', category: 'Category', description: 'Description'
+                title: 'Project Name',
+                image: 'Image',
+                category: 'Category',
+                description: 'Description'
             }
         };
 
         const pageElements = {
             navLinks: document.querySelectorAll('.nav-link'),
             pageSections: document.querySelectorAll('.page-section'),
+            hamburgerBtn: document.getElementById('hamburger-btn'),
+            sidebar: document.getElementById('sidebar'),
             articlesGrid: document.getElementById('articles-grid'),
             topArticlesGrid: document.getElementById('top-articles-grid'),
             projectsGrid: document.getElementById('projects-grid'),
@@ -423,17 +472,27 @@
 
         let allProjectsData = [];
 
-        async function callNotionApi(databaseId, filter) {
-            const response = await fetch('/.netlify/functions/notion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ databaseId, filter })
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'API request failed');
+        async function callNotionApi(databaseId, filter, sorts) {
+            try {
+                const response = await fetch('/.netlify/functions/notion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ databaseId, filter, sorts })
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'API request failed');
+                }
+                // エラーでなくても空の応答がありえるため、内容を確認
+                const responseText = await response.text();
+                if (!responseText) {
+                    throw new Error('Server returned an empty response.');
+                }
+                return JSON.parse(responseText);
+            } catch (error) {
+                console.error('callNotionApi failed:', error);
+                throw error;
             }
-            return await response.json();
         }
 
         async function fetchAndRenderArticles(category = 'All') {
@@ -448,15 +507,18 @@
                 });
             }
 
-            try {
-                const data = await callNotionApi('202fc6b604188067baedcd752b1bb428', filter);
-                container.innerHTML = '';
+            const sorts = [{
+                property: PROP_NAMES.article.created_time,
+                direction: 'descending'
+            }];
 
+            try {
+                const data = await callNotionApi(ARTICLES_DATABASE_ID, filter, sorts);
+                container.innerHTML = '';
                 if (data.results.length === 0) {
                     container.innerHTML = '<p>表示できる記事がありません。</p>';
                     return;
                 }
-
                 data.results.forEach(article => {
                     const props = article.properties;
                     const title = props[PROP_NAMES.article.title]?.title[0]?.plain_text || 'No Title';
@@ -482,27 +544,29 @@
         }
         
         async function fetchAndRenderProjects() {
-            pageElements.projectsGrid.innerHTML = '<p>読み込み中...</p>';
-            pageElements.topProjectsGrid.innerHTML = '<p>読み込み中...</p>';
+            const projectsContainer = pageElements.projectsGrid;
+            const topProjectsContainer = pageElements.topProjectsGrid;
+            projectsContainer.innerHTML = '<p>読み込み中...</p>';
+            topProjectsContainer.innerHTML = '<p>読み込み中...</p>';
             
             try {
                 const data = await callNotionApi(PROJECTS_DATABASE_ID, {});
                 allProjectsData = data.results;
 
-                pageElements.projectsGrid.innerHTML = '';
-                pageElements.topProjectsGrid.innerHTML = '';
+                projectsContainer.innerHTML = '';
+                topProjectsContainer.innerHTML = '';
 
                 if (allProjectsData.length === 0) {
-                    pageElements.projectsGrid.innerHTML = pageElements.topProjectsGrid.innerHTML = '<p>表示できるプロジェクトがありません。</p>';
-                    return;
+                     projectsContainer.innerHTML = topProjectsContainer.innerHTML = '<p>表示できるプロジェクトがありません。</p>';
+                     return;
                 }
                 
-                allProjectsData.forEach(project => renderProjectCard(pageElements.projectsGrid, project));
-                allProjectsData.slice(0, 2).forEach(project => renderProjectCard(pageElements.topProjectsGrid, project));
+                allProjectsData.forEach(project => renderProjectCard(projectsContainer, project));
+                allProjectsData.slice(0, 2).forEach(project => renderProjectCard(topProjectsContainer, project));
 
             } catch (error) {
                 console.error('Projectsの取得に失敗:', error);
-                pageElements.projectsGrid.innerHTML = pageElements.topProjectsGrid.innerHTML = `<p>プロジェクトデータの取得に失敗しました。データベースID等を確認してください。</p>`;
+                projectsContainer.innerHTML = topProjectsContainer.innerHTML = `<p>プロジェクトデータの取得に失敗しました。データベースID等を確認してください。</p>`;
             }
         }
         
@@ -558,6 +622,7 @@
                 }
             });
             window.scrollTo(0, 0);
+            pageElements.sidebar.classList.remove('is-open');
         }
         
         function initialLoad() {
