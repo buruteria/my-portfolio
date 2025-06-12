@@ -537,49 +537,84 @@
             }
         }
 
-        // --- ▼ fetchAndRenderArticles 関数の置き換え ▼ ---
+ // --- ▼ fetchAndRenderArticles 関数の置き換え ▼ ---
 async function fetchAndRenderArticles(category = 'All') {
     const container = pageElements.articlesGrid;
     container.innerHTML = '<p>読み込み中...</p>';
     
-    const filter = {}; // ← フィルターを空にする
-    const sorts = [];  // ← 並び替え条件も空にする
+    let filter = {};
+    // "All"タブの場合はFeaturedのみ、それ以外はカテゴリーでフィルタリング
+    if (category === 'All') {
+        filter = {
+            property: PROP_NAMES.article.featured,
+            checkbox: {
+                equals: true
+            }
+        };
+    } else {
+        filter = {
+            and: [
+                {
+                    property: PROP_NAMES.article.category,
+                    select: {
+                        equals: category
+                    }
+                },
+                {
+                    property: PROP_NAMES.article.featured,
+                    checkbox: {
+                        equals: true
+                    }
+                }
+            ]
+        };
+    }
+    
+    const sorts = [
+        {
+            property: PROP_NAMES.article.created_time,
+            direction: 'descending'
+        }
+    ];
 
     try {
+        // Notion APIを呼び出す
+        const data = await callNotionApi(ARTICLES_DATABASE_ID, filter, sorts);
+        
+        container.innerHTML = '';
+        if (data.results.length === 0) {
+            container.innerHTML = '<p>表示できる記事がありません。</p>';
+            return;
+        }
 
-container.innerHTML = '';
-if (data.results.length === 0) {
-    container.innerHTML = '<p>表示できる記事がありません。</p>';
-    return;
-}
+        data.results.forEach(article => {
+            const props = article.properties;
+            const title = props[PROP_NAMES.article.title]?.title[0]?.plain_text || 'No Title';
+            const imageUrl = props[PROP_NAMES.article.image]?.files[0]?.file?.url || props[PROP_NAMES.article.image]?.files[0]?.external?.url || '';
+            const pageUrl = props[PROP_NAMES.article.url]?.url || '#';
+            const media = props[PROP_NAMES.article.media]?.rich_text[0]?.plain_text || '';
+            
+            // 職種タグを個別のHTML要素として生成
+            const roles = props[PROP_NAMES.article.role]?.multi_select || [];
+            const tagsHtml = roles.map(tag => `<span class="card-tag-pill">#${tag.name}</span>`).join('');
 
-data.results.forEach(article => {
-    const props = article.properties;
-    const title = props[PROP_NAMES.article.title]?.title[0]?.plain_text || 'No Title';
-    const imageUrl = props[PROP_NAMES.article.image]?.files[0]?.file?.url || props[PROP_NAMES.article.image]?.files[0]?.external?.url || '';
-    const pageUrl = props[PROP_NAMES.article.url]?.url || '#';
-    const media = props[PROP_NAMES.article.media]?.rich_text[0]?.plain_text || '';
-    
-    // 職種タグを個別のHTML要素として生成
-    const roles = props[PROP_NAMES.article.role]?.multi_select || [];
-    const tagsHtml = roles.map(tag => `<span class="card-tag-pill">#${tag.name}</span>`).join('');
-
-    // カードのHTMLを生成（メディア名とタイトルの順序も変更）
-    const cardHtml = `
-        <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="card">
-            <div class="card-image" style="background-image: url('${imageUrl}')"></div>
-            <div class="card-content">
-                <p class="card-title">${title}</p>
-                <p class="card-media">${media}</p>
-                <div class="card-tags">${tagsHtml}</div>
-            </div>
-        </a>
-    `;
-    container.insertAdjacentHTML('beforeend', cardHtml);
-});
+            // カードのHTMLを生成
+            const cardHtml = `
+                <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="card">
+                    <div class="card-image" style="background-image: url('${imageUrl}')"></div>
+                    <div class="card-content">
+                        <p class="card-title">${title}</p>
+                        <p class="card-media">${media}</p>
+                        <div class="card-tags">${tagsHtml}</div>
+                    </div>
+                </a>
+            `;
+            container.insertAdjacentHTML('beforeend', cardHtml);
+        });
 
     } catch (error) {
-        // ...
+        console.error('Articlesの取得に失敗:', error);
+        container.innerHTML = '<p>記事データの取得に失敗しました。</p>';
     }
 }
         
