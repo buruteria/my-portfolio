@@ -415,7 +415,7 @@
             <h2 class="section-title">Article</h2>
             <div id="article-tabs" class="article-tabs">
                 <button class="tab-button active" data-category="All">All</button>
-                <button class="tab-button" data-category="Biz&Tech">Biz&Tech</button>
+                <button class="tab-button" data-category="Biz/Tech">Biz/Tech</button>
                 <button class="tab-button" data-category="Design">Design</button>
                 <button class="tab-button" data-category="Creative">Creative</button>
                 <button class="tab-button" data-category="Academic">Academic</button>
@@ -470,6 +470,7 @@
                 url: 'URL',
                 role: 'Role',
                 media: 'Media',
+                featured: 'Featured'
                 created_time: '作成日時'
             },
             project: {
@@ -518,57 +519,42 @@
             }
         }
 
-        async function fetchAndRenderArticles(category = 'All') {
-            const container = pageElements.articlesGrid;
-            container.innerHTML = '<p>読み込み中...</p>';
-            
-            let filter = { and: [] };
-            if (category !== 'All') {
-                filter.and.push({
-                    property: PROP_NAMES.article.category,
-                    select: { equals: category }
-                });
-            }
+        // --- ▼ fetchAndRenderArticles 関数の置き換え ▼ ---
+async function fetchAndRenderArticles(category = 'All') {
+    const container = pageElements.articlesGrid;
+    container.innerHTML = '<p>読み込み中...</p>';
+    
+    // フィルター条件を動的に作成
+    let filter = { and: [] };
+    if (category === 'All') {
+        // 「All」タブの場合は "Featured" が true のものを絞り込む
+        filter.and.push({
+            property: PROP_NAMES.article.featured,
+            checkbox: { equals: true }
+        });
+    } else {
+        // それ以外のタブでは、指定されたカテゴリで絞り込む
+        filter.and.push({
+            property: PROP_NAMES.article.category,
+            select: { equals: category }
+        });
+    }
 
-            const sorts = [{
-                property: PROP_NAMES.article.created_time,
-                direction: 'descending'
-            }];
+    const sorts = [{
+        property: PROP_NAMES.article.created_time,
+        direction: 'descending' // ※あとで昇順に変更します
+    }];
 
-            try {
-                const data = await callNotionApi(ARTICLES_DATABASE_ID, filter, sorts);
-                container.innerHTML = '';
+    try {
+        const data = await callNotionApi(ARTICLES_DATABASE_ID, filter, sorts);
+        // ...以降のデータ表示処理は変更なし...
+        // （次の項目でカードのHTML部分をさらに変更します）
 
-                if (data.results.length === 0) {
-                    container.innerHTML = '<p>表示できる記事がありません。</p>';
-                    return;
-                }
-
-                data.results.forEach(article => {
-                    const props = article.properties;
-                    const title = props[PROP_NAMES.article.title]?.title[0]?.plain_text || 'No Title';
-                    const imageUrl = props[PROP_NAMES.article.image]?.files[0]?.file?.url || props[PROP_NAMES.article.image]?.files[0]?.external?.url || '';
-                    const pageUrl = props[PROP_NAMES.article.url]?.url || '#';
-                    const role = props[PROP_NAMES.article.role]?.multi_select.map(t => t.name).join(', ') || '';
-                    const media = props[PROP_NAMES.article.media]?.rich_text[0]?.plain_text || '';
-
-                    const cardHtml = `
-                        <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="card">
-                            <div class="card-image" style="background-image: url('${imageUrl}')"></div>
-                            <div class="card-content">
-                                <p class="card-media">${media}</p>
-                                <p class="card-title">${title}</p>
-                                <p class="card-tags">${role}</p>
-                            </div>
-                        </a>
-                    `;
-                    container.insertAdjacentHTML('beforeend', cardHtml);
-                });
-            } catch (error) {
-                console.error('Articlesの取得に失敗:', error);
-                container.innerHTML = `<p>記事データの取得に失敗しました。詳細：${error.message}</p>`;
-            }
-        }
+        // （この関数内の残りの部分は、次の項目で提示するコードを参照してください）
+    } catch (error) {
+        // ...
+    }
+}
         
         async function fetchAndRenderProjects() {
             const projectsContainer = pageElements.projectsGrid;
@@ -669,7 +655,7 @@
             observer.observe(pageElements.articlesGrid, { childList: true });
         }
         
-// --- ▼ イベントリスナーの設定（修正版）▼ ---
+        // --- ▼ イベントリスナーの設定（修正版）▼ ---
 
 // ページ内ナビゲーションのリンクがクリックされた時の処理
 pageElements.navLinks.forEach(link => {
@@ -709,6 +695,7 @@ pageElements.projectModalOverlay.addEventListener('click', (e) => {
 pageElements.hamburgerBtn.addEventListener('click', () => {
     pageElements.sidebar.classList.toggle('is-open');
 });
+
         initialLoad();
     });
     </script>
