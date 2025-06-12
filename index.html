@@ -330,6 +330,24 @@
         .project-modal-overlay.active .project-modal { transform: translateX(0); }
         .project-modal-close { position: absolute; top: 20px; right: 20px; font-size: 30px; cursor: pointer; }
 
+        /* --- ▼ カード内タグ用のスタイルを追加 ▼ --- */
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto; /* タグをカード下部に配置 */
+    padding-top: 12px;
+}
+.card-tag-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    background-color: #f0f0f0;
+    color: #555;
+    border-radius: 999px;
+}
+
         @media (max-width: 1024px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -546,11 +564,38 @@ async function fetchAndRenderArticles(category = 'All') {
     }];
 
     try {
-        const data = await callNotionApi(ARTICLES_DATABASE_ID, filter, sorts);
-        // ...以降のデータ表示処理は変更なし...
-        // （次の項目でカードのHTML部分をさらに変更します）
 
-        // （この関数内の残りの部分は、次の項目で提示するコードを参照してください）
+container.innerHTML = '';
+if (data.results.length === 0) {
+    container.innerHTML = '<p>表示できる記事がありません。</p>';
+    return;
+}
+
+data.results.forEach(article => {
+    const props = article.properties;
+    const title = props[PROP_NAMES.article.title]?.title[0]?.plain_text || 'No Title';
+    const imageUrl = props[PROP_NAMES.article.image]?.files[0]?.file?.url || props[PROP_NAMES.article.image]?.files[0]?.external?.url || '';
+    const pageUrl = props[PROP_NAMES.article.url]?.url || '#';
+    const media = props[PROP_NAMES.article.media]?.rich_text[0]?.plain_text || '';
+    
+    // 職種タグを個別のHTML要素として生成
+    const roles = props[PROP_NAMES.article.role]?.multi_select || [];
+    const tagsHtml = roles.map(tag => `<span class="card-tag-pill">#${tag.name}</span>`).join('');
+
+    // カードのHTMLを生成（メディア名とタイトルの順序も変更）
+    const cardHtml = `
+        <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="card">
+            <div class="card-image" style="background-image: url('${imageUrl}')"></div>
+            <div class="card-content">
+                <p class="card-title">${title}</p>
+                <p class="card-media">${media}</p>
+                <div class="card-tags">${tagsHtml}</div>
+            </div>
+        </a>
+    `;
+    container.insertAdjacentHTML('beforeend', cardHtml);
+});
+
     } catch (error) {
         // ...
     }
