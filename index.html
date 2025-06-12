@@ -685,7 +685,7 @@ data.results.forEach(article => {
         
         function initialLoad() {
             fetchAndRenderArticles('All');
-            fetchAndRenderProjects();
+            //fetchAndRenderProjects();//
 
             const observer = new MutationObserver((mutations, obs) => {
                 const articleNodes = pageElements.articlesGrid.querySelectorAll('.card');
