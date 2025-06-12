@@ -669,11 +669,46 @@
             observer.observe(pageElements.articlesGrid, { childList: true });
         }
         
-        pageElements.navLinks.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); navigateTo(link.getAttribute('href').substring(1)); }); });
-        pageElements.articleTabs.addEventListener('click', (e) => { if (e.target.classList.contains('tab-button')) { document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active')); e.target.classList.add('active'); fetchAndRenderArticles(e.target.dataset.category); } });
-        document.addEventListener('click', (e) => { const card = e.target.closest('.project-card'); if (card) { openProjectModal(card.dataset.projectId); } });
-        pageElements.projectModalOverlay.addEventListener('click', (e) => { if (e.target === pageElements.projectModalOverlay) { closeProjectModal(); } });
+// --- ▼ イベントリスナーの設定（修正版）▼ ---
 
+// ページ内ナビゲーションのリンクがクリックされた時の処理
+pageElements.navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pageId = link.getAttribute('href').substring(1);
+        navigateTo(pageId);
+    });
+});
+
+// Articleページのタブボタンがクリックされた時の処理
+pageElements.articleTabs.addEventListener('click', (e) => {
+    if (e.target.classList.contains('tab-button')) {
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        const category = e.target.dataset.category;
+        fetchAndRenderArticles(category);
+    }
+});
+
+// Projectカードがクリックされた時の処理
+document.addEventListener('click', (e) => {
+    const card = e.target.closest('.project-card');
+    if (card) {
+        openProjectModal(card.dataset.projectId);
+    }
+});
+
+// Project詳細モーダルの外側をクリックした時に閉じる処理
+pageElements.projectModalOverlay.addEventListener('click', (e) => {
+    if (e.target === pageElements.projectModalOverlay) {
+        closeProjectModal();
+    }
+});
+
+// ハンバーガーボタンがクリックされた時の処理
+pageElements.hamburgerBtn.addEventListener('click', () => {
+    pageElements.sidebar.classList.toggle('is-open');
+});
         initialLoad();
     });
     </script>
