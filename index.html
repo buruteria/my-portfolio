@@ -542,26 +542,8 @@ async function fetchAndRenderArticles(category = 'All') {
     const container = pageElements.articlesGrid;
     container.innerHTML = '<p>読み込み中...</p>';
     
-    // フィルター条件を動的に作成
-    let filter = { and: [] };
-    if (category === 'All') {
-        // 「All」タブの場合は "Featured" が true のものを絞り込む
-        filter.and.push({
-            property: PROP_NAMES.article.featured,
-            checkbox: { equals: true }
-        });
-    } else {
-        // それ以外のタブでは、指定されたカテゴリで絞り込む
-        filter.and.push({
-            property: PROP_NAMES.article.category,
-            select: { equals: category }
-        });
-    }
-
-    const sorts = [{
-        property: PROP_NAMES.article.created_time,
-        direction: 'descending' // ※あとで昇順に変更します
-    }];
+    const filter = {}; // ← フィルターを空にする
+    const sorts = [];  // ← 並び替え条件も空にする
 
     try {
 
