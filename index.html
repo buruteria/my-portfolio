@@ -131,6 +131,7 @@
             border: 1px solid var(--accent-color);
             margin-top: 30px;
             transition: all 0.2s;
+            border-radius: 999px;
         }
         .view-all-button:hover {
             background-color: var(--accent-color);
@@ -145,6 +146,7 @@
             background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2940&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
+            border-radius: 16px;
         }
         .intro-text {
             max-width: 720px;
@@ -163,6 +165,7 @@
             margin-top: 60px;
             background: #fff;
             padding: 40px;
+            border-radius: 16px;
         }
         .about-me .photo {
             width: 150px;
@@ -203,28 +206,40 @@
         .card {
             background-color: #fff;
             border: 1px solid var(--border-color);
-            transition: box-shadow 0.2s;
+            border-radius: 16px;
+            transition: box-shadow 0.3s, transform 0.3s;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
         .card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         }
         .card-image {
             width: 100%;
             padding-top: 56.25%;
             background-size: cover;
             background-position: center;
-            border-bottom: 1px solid var(--border-color);
         }
         .card-content {
-            padding: 20px;
+            padding: 20px 24px;
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-media {
+            font-size: 12px;
+            font-weight: 500;
+            color: #888;
+            margin-bottom: 8px;
         }
         .card-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 500;
-            margin-bottom: 10px;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            flex-grow: 1;
         }
         .card-tags {
             font-size: 12px;
@@ -236,19 +251,27 @@
         
         .article-tabs {
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 12px;
             margin-bottom: 30px;
         }
         .tab-button {
-            padding: 8px 16px;
+            padding: 8px 20px;
             border: 1px solid var(--border-color);
-            background-color: #fff;
+            background-color: transparent;
+            color: var(--accent-color);
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 999px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .tab-button:hover {
+            border-color: var(--accent-color);
         }
         .tab-button.active {
             background-color: var(--accent-color);
-            color: #fff;
+            color: var(--bg-color);
+            border-color: var(--accent-color);
         }
 
         .contact-form {
@@ -380,7 +403,7 @@
                 </div>
             </div>
             <div class="social-links">
-                <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></a>
+                 <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></a>
                 <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-4.48 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"></path></svg></a>
                 <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.012 3.584-.07 4.85c-.148 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.85s.012-3.584.07-4.85c.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.947s-.014-3.667-.072-4.947c-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"></path></svg></a>
             </div>
@@ -446,7 +469,8 @@
                 image: 'OGP Image',
                 url: 'URL',
                 role: 'Role',
-                created_time: '作成日時' // Notionの「作成日時」プロパティの正式名称
+                media: 'Media',
+                created_time: '作成日時'
             },
             project: {
                 title: 'Project Name',
@@ -483,7 +507,6 @@
                     const errorText = await response.text();
                     throw new Error(errorText || 'API request failed');
                 }
-                // エラーでなくても空の応答がありえるため、内容を確認
                 const responseText = await response.text();
                 if (!responseText) {
                     throw new Error('Server returned an empty response.');
@@ -509,27 +532,31 @@
 
             const sorts = [{
                 property: PROP_NAMES.article.created_time,
-                direction: 'ascending'
+                direction: 'descending'
             }];
 
             try {
                 const data = await callNotionApi(ARTICLES_DATABASE_ID, filter, sorts);
                 container.innerHTML = '';
+
                 if (data.results.length === 0) {
                     container.innerHTML = '<p>表示できる記事がありません。</p>';
                     return;
                 }
+
                 data.results.forEach(article => {
                     const props = article.properties;
                     const title = props[PROP_NAMES.article.title]?.title[0]?.plain_text || 'No Title';
                     const imageUrl = props[PROP_NAMES.article.image]?.files[0]?.file?.url || props[PROP_NAMES.article.image]?.files[0]?.external?.url || '';
                     const pageUrl = props[PROP_NAMES.article.url]?.url || '#';
                     const role = props[PROP_NAMES.article.role]?.multi_select.map(t => t.name).join(', ') || '';
+                    const media = props[PROP_NAMES.article.media]?.rich_text[0]?.plain_text || '';
 
                     const cardHtml = `
                         <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="card">
                             <div class="card-image" style="background-image: url('${imageUrl}')"></div>
                             <div class="card-content">
+                                <p class="card-media">${media}</p>
                                 <p class="card-title">${title}</p>
                                 <p class="card-tags">${role}</p>
                             </div>
