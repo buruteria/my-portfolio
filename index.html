@@ -432,6 +432,54 @@
             color: var(--accent-color);
             font-weight: bold;
         }
+
+        /* --- Contact Page --- */
+        .contact-container {
+            display: flex;
+            gap: 60px;
+            align-items: flex-start;
+            margin-top: 40px;
+        }
+        .contact-info {
+            flex: 1;
+        }
+        .contact-info h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        .contact-form-wrapper {
+            flex: 1.5;
+        }
+        .contact-form {
+            max-width: 100%;
+        }
+        .form-group input, .form-group textarea {
+            background-color: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 0;
+            padding: 15px 0;
+            font-size: 16px;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-bottom-color: var(--accent-color);
+        }
+        .submit-button {
+            padding: 12px 24px;
+            border: 1px solid var(--accent-color);
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 999px;
+            margin-top: 20px;
+        }
+        .submit-button:hover {
+            background-color: transparent;
+            color: var(--accent-color);
+        }
     </style>
 </head>
 <body>
@@ -533,24 +581,30 @@
 
         <section id="contact" class="page-section">
             <h2 class="section-title">Contact</h2>
-            <div class="contact-form">
-                <p style="margin-bottom: 20px;">ご依頼やご相談はこちらのフォームからお気軽にご連絡ください。</p>
-                <form action="https://formspree.io/f/YOUR_UNIQUE_CODE" method="POST">
-                    <div class="form-group">
-                        <label for="name">お名前</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">メールアドレス</label>
-                        <input type="email" id="email" name="_replyto" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">依頼内容</label>
-                        <textarea id="message" name="message" required></textarea>
-                    </div>
-                    <button type="submit" class="submit-button">送信</button>
-                </form>
-                <p class="contact-email">あるいは、<a href="mailto:tetsu2626@gmail.com">こちらのメールアドレス</a>宛にご連絡ください。</p>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h3>お気軽にご連絡ください。</h3>
+                    <p>事業やプロジェクトに関するご相談、壁打ち、取材のご依頼など、どのような内容でも歓迎です。</p>
+                    <p style="margin-top:20px;">あるいは、<a href="mailto:tetsu2626@gmail.com" style="text-decoration: underline;">こちらのメールアドレス</a>宛にご連絡ください。</p>
+                </div>
+                <div class="contact-form-wrapper">
+                    <form id="contact-form" action="https://formspree.io/f/YOUR_UNIQUE_CODE" method="POST">
+                        <div class="form-group">
+                            <label for="name">お名前</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">メールアドレス</label>
+                            <input type="email" id="email" name="_replyto" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">依頼内容</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-button">送信</button>
+                    </form>
+                    <p id="form-status" style="margin-top: 20px;"></p>
+                </div>
             </div>
         </section>
     </main>
@@ -839,6 +893,40 @@ pageElements.projectModalOverlay.addEventListener('click', (e) => {
 // ハンバーガーボタンがクリックされた時の処理
 pageElements.hamburgerBtn.addEventListener('click', () => {
     pageElements.sidebar.classList.toggle('is-open');
+});
+
+// Contact Formの非同期送信
+const contactForm = document.getElementById('contact-form');
+contactForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+    const status = document.getElementById('form-status');
+
+    try {
+        const response = await fetch(form.action, {
+            method: form.method,
+            body: data,
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+            status.textContent = 'ありがとうございます。メッセージが送信されました！';
+            status.style.color = 'green';
+            form.reset();
+        } else {
+            const responseData = await response.json();
+            if (Object.hasOwn(responseData, 'errors')) {
+                status.textContent = responseData["errors"].map(error => error["message"]).join(", ");
+            } else {
+                status.textContent = 'メッセージの送信に失敗しました。';
+            }
+            status.style.color = 'red';
+        }
+    } catch (error) {
+        status.textContent = 'メッセージの送信中にエラーが発生しました。';
+        status.style.color = 'red';
+    }
 });
 
         initialLoad();
