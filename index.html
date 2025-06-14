@@ -588,18 +588,18 @@
                     <p style="margin-top:20px;">あるいは、<a href="mailto:tetsu2626@gmail.com" style="text-decoration: underline;">こちらのメールアドレス</a>宛にご連絡ください。</p>
                 </div>
                 <div class="contact-form-wrapper">
-                    <form id="contact-form" action="https://formspree.io/f/YOUR_UNIQUE_CODE" method="POST">
+                    <form id="contact-form" action="https://ssgform.com/s/NPDRNwcsF1ur" method="POST">
                         <div class="form-group">
                             <label for="name">お名前</label>
-                            <input type="text" id="name" name="name" required>
+                            <input type="text" id="name" name="お名前" required>
                         </div>
                         <div class="form-group">
                             <label for="email">メールアドレス</label>
-                            <input type="email" id="email" name="_replyto" required>
+                            <input type="email" id="email" name="メールアドレス" required>
                         </div>
                         <div class="form-group">
                             <label for="message">依頼内容</label>
-                            <textarea id="message" name="message" required></textarea>
+                            <textarea id="message" name="お問い合わせ内容" required></textarea>
                         </div>
                         <button type="submit" class="submit-button">送信</button>
                     </form>
@@ -907,7 +907,10 @@ contactForm.addEventListener('submit', async (e) => {
         const response = await fetch(form.action, {
             method: form.method,
             body: data,
-            headers: { 'Accept': 'application/json' }
+            headers: { 
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         });
 
         if (response.ok) {
