@@ -676,28 +676,22 @@
             articlesContainer.innerHTML = '<p>読み込み中...</p>';
             topArticlesContainer.innerHTML = '<p>読み込み中...</p>';
 
-            const sorts = [
-                { property: PROP_NAMES.article.created_time, direction: 'descending' }
-            ];
-
             try {
-                const data = await callNotionApi(ARTICLES_DATABASE_ID, {}, sorts);
+                // ソート条件をAPIコールから削除し、まず全データを取得する
+                const data = await callNotionApi(ARTICLES_DATABASE_ID, {}, []);
                 allArticlesData = data.results;
                 
-                // Priorityプロパティが存在する場合のみ、優先度でソート
-                if (allArticlesData.length > 0 && allArticlesData[0].properties[PROP_NAMES.article.priority]) {
-                    allArticlesData.sort((a, b) => {
-                        const priorityA = a.properties[PROP_NAMES.article.priority]?.number || 999;
-                        const priorityB = b.properties[PROP_NAMES.article.priority]?.number || 999;
-                        if (priorityA !== priorityB) {
-                            return priorityA - priorityB;
-                        }
-                        // 優先度が同じ場合は作成日時で降順ソート
-                        const dateA = new Date(a.properties[PROP_NAMES.article.created_time]?.created_time || 0);
-                        const dateB = new Date(b.properties[PROP_NAMES.article.created_time]?.created_time || 0);
-                        return dateB - dateA;
-                    });
-                }
+                // クライアントサイドで安全にソート処理を行う
+                allArticlesData.sort((a, b) => {
+                    const priorityA = a.properties[PROP_NAMES.article.priority]?.number ?? 999;
+                    const priorityB = b.properties[PROP_NAMES.article.priority]?.number ?? 999;
+                    if (priorityA !== priorityB) {
+                        return priorityA - priorityB;
+                    }
+                    const dateA = new Date(a.properties[PROP_NAMES.article.created_time]?.created_time || 0).getTime();
+                    const dateB = new Date(b.properties[PROP_NAMES.article.created_time]?.created_time || 0).getTime();
+                    return dateB - dateA;
+                });
                 
                 renderArticles('All');
 
@@ -714,7 +708,7 @@
 
             } catch (error) {
                 console.error('Articlesの取得に失敗:', error);
-                articlesContainer.innerHTML = '<p>記事データの取得に失敗しました。</p>';
+                articlesContainer.innerHTML = `<p>記事データの取得に失敗しました。NotionデータベースのIDやプロパティ名が正しいか確認してください。</p><p style="color: red; font-size: 12px;">${error.message}</p>`;
                 topArticlesContainer.innerHTML = '';
             }
         }
