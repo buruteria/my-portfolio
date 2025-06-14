@@ -449,7 +449,7 @@
                 <ul id="navigation">
                     <li><a href="#top" class="nav-link active">TOP</a></li>
                     <li><a href="#about" class="nav-link">ABOUT</a></li>
-                    <li><a href="#articles" class="nav-link">ARTICLE</a></li>
+                    <li><a href="#articles" class="nav-link">ARTICLES</a></li>
                     <li><a href="#projects" class="nav-link">PROJECTS</a></li>
                     <li><a href="#contact" class="nav-link">CONTACT</a></li>
                 </ul>
@@ -466,7 +466,7 @@
                 <p>いわゆる"編集者"と聞くと、メディア記事や書籍制作が仕事というイメージがありますが、実際は法人運営から事業立ち上げ、未来に向けた経営コンセプトの言語化まで幅広いご相談があります。</p>
                 <p>独立前は、ITコンサルタント、スタートアップで複数の事業開発を経験。その影響から、BTCA（ビジネス／テクノロジー／クリエイティブ／アカデミック）領域を横断して先端トピックを把握し、必要な機会があれば自分の手足を動かして実装していくスタイルを好んでいます。</p>
             </div>
-            <h2 class="section-title">Article</h2>
+            <h2 class="section-title">Articles</h2>
             <div id="top-articles-grid" class="grid-container grid-3-col"></div>
             <a href="#articles" class="view-all-button nav-link">View All</a>
             <h2 class="section-title" style="margin-top: 60px;">Projects</h2>
@@ -515,7 +515,7 @@
         </section>
 
         <section id="articles" class="page-section">
-            <h2 class="section-title">Article</h2>
+            <h2 class="section-title">Articles</h2>
             <div id="article-tabs" class="article-tabs">
                 <button class="tab-button active" data-category="All">All</button>
                 <button class="tab-button" data-category="Biz/Tech">Biz/Tech</button>
@@ -574,7 +574,8 @@
                 role: 'Role',
                 media: 'Media',
                 featured: 'Featured',
-                created_time: '作成日時'
+                created_time: '作成日時',
+                priority: 'Priority'
             },
             project: {
                 title: 'Project Name',
@@ -598,6 +599,7 @@
             projectModalContent: document.getElementById('project-modal-content'),
         };
 
+        let allArticlesData = [];
         let allProjectsData = [];
 
         async function callNotionApi(databaseId, filter, sorts) {
@@ -622,59 +624,16 @@
             }
         }
 
-       // --- ▼ fetchAndRenderArticles 関数の置き換え ▼ ---
-       async function fetchAndRenderArticles(category = 'All') {
-    const container = pageElements.articlesGrid;
-    container.innerHTML = '<p>読み込み中...</p>';
-    
-    let filter = {};
-    // "All"タブの場合はFeaturedのみ
-    if (category === 'All') {
-        filter = {
-            property: PROP_NAMES.article.featured,
-            checkbox: {
-                equals: true
-            }
-        };
-    } else {
-        // それ以外はカテゴリーのみでフィルタリング（Featuredは無視）
-        filter = {
-            property: PROP_NAMES.article.category,
-            select: {
-                equals: category
-            }
-        };
-    }
-    
-    const sorts = [
-        {
-            property: PROP_NAMES.article.created_time,
-            direction: 'ascending'  // 古い順に変更
-        }
-    ];
-
-    try {
-        // Notion APIを呼び出す
-        const data = await callNotionApi(ARTICLES_DATABASE_ID, filter, sorts);
-        
-        container.innerHTML = '';
-        if (data.results.length === 0) {
-            container.innerHTML = '<p>表示できる記事がありません。</p>';
-            return;
-        }
-
-        data.results.forEach(article => {
+        function renderArticleCard(container, article) {
             const props = article.properties;
             const title = props[PROP_NAMES.article.title]?.title[0]?.plain_text || 'No Title';
             const imageUrl = props[PROP_NAMES.article.image]?.files[0]?.file?.url || props[PROP_NAMES.article.image]?.files[0]?.external?.url || '';
             const pageUrl = props[PROP_NAMES.article.url]?.url || '#';
             const media = props[PROP_NAMES.article.media]?.rich_text[0]?.plain_text || '';
             
-            // 職種タグを個別のHTML要素として生成
             const roles = props[PROP_NAMES.article.role]?.multi_select || [];
             const tagsHtml = roles.map(tag => `<span class="card-tag-pill">#${tag.name}</span>`).join('');
 
-            // カードのHTMLを生成
             const cardHtml = `
                 <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="card">
                     <div class="card-image" style="background-image: url('${imageUrl}')"></div>
@@ -686,13 +645,65 @@
                 </a>
             `;
             container.insertAdjacentHTML('beforeend', cardHtml);
-        });
+        }
 
-    } catch (error) {
-        console.error('Articlesの取得に失敗:', error);
-        container.innerHTML = '<p>記事データの取得に失敗しました。</p>';
-    }
-}
+        function renderArticles(category = 'All') {
+            const container = pageElements.articlesGrid;
+            container.innerHTML = '';
+            
+            let articlesToRender;
+
+            if (category === 'All') {
+                articlesToRender = allArticlesData.filter(article => article.properties[PROP_NAMES.article.featured]?.checkbox === true);
+            } else {
+                articlesToRender = allArticlesData.filter(article => {
+                    const cat = article.properties[PROP_NAMES.article.category]?.select?.name;
+                    return cat === category;
+                });
+            }
+
+            if (articlesToRender.length === 0) {
+                container.innerHTML = '<p>表示できる記事がありません。</p>';
+                return;
+            }
+
+            articlesToRender.forEach(article => renderArticleCard(container, article));
+        }
+
+        async function fetchAllArticles() {
+            const articlesContainer = pageElements.articlesGrid;
+            const topArticlesContainer = pageElements.topArticlesGrid;
+            articlesContainer.innerHTML = '<p>読み込み中...</p>';
+            topArticlesContainer.innerHTML = '<p>読み込み中...</p>';
+
+            const sorts = [
+                { property: PROP_NAMES.article.priority, direction: 'ascending' },
+                { property: PROP_NAMES.article.created_time, direction: 'descending' }
+            ];
+
+            try {
+                const data = await callNotionApi(ARTICLES_DATABASE_ID, {}, sorts);
+                allArticlesData = data.results;
+                
+                renderArticles('All');
+
+                topArticlesContainer.innerHTML = '';
+                const featuredArticles = allArticlesData
+                    .filter(article => article.properties[PROP_NAMES.article.featured]?.checkbox === true)
+                    .slice(0, 3);
+                
+                if (featuredArticles.length > 0) {
+                    featuredArticles.forEach(article => renderArticleCard(topArticlesContainer, article));
+                } else {
+                    topArticlesContainer.innerHTML = '<p>注目の記事はありません。</p>';
+                }
+
+            } catch (error) {
+                console.error('Articlesの取得に失敗:', error);
+                articlesContainer.innerHTML = '<p>記事データの取得に失敗しました。</p>';
+                topArticlesContainer.innerHTML = '';
+            }
+        }
         
         async function fetchAndRenderProjects() {
             const projectsContainer = pageElements.projectsGrid;
@@ -777,20 +788,8 @@
         }
         
         function initialLoad() {
-            fetchAndRenderArticles('All');
+            fetchAllArticles();
             //fetchAndRenderProjects();//
-
-            const observer = new MutationObserver((mutations, obs) => {
-                const articleNodes = pageElements.articlesGrid.querySelectorAll('.card');
-                if (articleNodes.length > 0) {
-                    pageElements.topArticlesGrid.innerHTML = '';
-                    for (let i = 0; i < 3 && i < articleNodes.length; i++) {
-                        pageElements.topArticlesGrid.appendChild(articleNodes[i].cloneNode(true));
-                    }
-                    obs.disconnect();
-                }
-            });
-            observer.observe(pageElements.articlesGrid, { childList: true });
         }
         
         // --- ▼ イベントリスナーの設定（修正版）▼ ---
@@ -810,7 +809,7 @@ pageElements.articleTabs.addEventListener('click', (e) => {
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
         e.target.classList.add('active');
         const category = e.target.dataset.category;
-        fetchAndRenderArticles(category);
+        renderArticles(category);
     }
 });
 
