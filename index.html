@@ -728,7 +728,11 @@
             const articlesContainer = pageElements.articlesGrid;
             const topArticlesContainer = pageElements.topArticlesGrid;
             articlesContainer.innerHTML = '<p>読み込み中...</p>';
-            topArticlesContainer.innerHTML = '<p>読み込み中...</p>';
+            topProjectsContainer.innerHTML = '<p>読み込み中...</p>';
+
+            const sorts = [
+                { property: PROP_NAMES.article.created_time, direction: 'descending' }
+            ];
 
             try {
                 // 空のフィルターの代わりにnullを渡すように修正
