@@ -91,7 +91,10 @@
         .main-content {
             margin-left: var(--sidebar-width);
             width: calc(100% - var(--sidebar-width));
-            padding: 60px;
+            padding: 60px 80px;
+            max-width: 1200px;
+            margin-left: calc(var(--sidebar-width) + 40px);
+            width: calc(100% - var(--sidebar-width) - 80px);
         }
         
         .page-section {
@@ -352,17 +355,18 @@
             opacity: 1; visibility: visible;
         }
         .project-modal {
-            width: 90%; max-width: 960px; max-height: 90vh;
+            width: 85%; max-width: 800px; max-height: 90vh;
             background-color: var(--bg-color);
             border-radius: 16px;
             display: flex; flex-direction: column;
             transform: scale(0.95); transition: transform 0.3s;
+            margin: 0 auto;
         }
         .project-modal-overlay.active .project-modal {
             transform: scale(1);
         }
         .project-modal-header {
-            padding: 20px 40px;
+            padding: 25px 50px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
@@ -370,8 +374,10 @@
             flex-shrink: 0;
         }
         .project-modal-header h2 {
-            font-size: 24px;
+            font-size: 28px;
             margin: 0;
+            font-family: 'Lora', serif;
+            font-weight: 600;
         }
         .project-modal-close {
             font-size: 30px;
@@ -383,33 +389,35 @@
             color: var(--text-color);
         }
         .project-modal-body {
-            padding: 30px 40px;
+            padding: 40px 60px;
             overflow-y: auto;
+            max-width: 100%;
+            margin: 0 auto;
         }
         
         /* --- OGP Card Styles (Revised) --- */
         #ogp-card-container {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
         .ogp-card {
             display: flex;
             flex-direction: column;
             border: 1px solid #e1e4e8;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             text-decoration: none;
             color: inherit;
             background-color: #fff;
             transition: box-shadow 0.2s;
+            max-width: 100%;
         }
         .ogp-card:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
         }
         .ogp-card-image {
             width: 100%;
-            max-height: 500px;
+            max-height: 400px;
             background-color: #f6f8fa;
-            border-bottom: 1px solid #e1e4e8;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -421,23 +429,21 @@
             object-fit: contain;
         }
         .ogp-card-info {
-            padding: 16px 20px;
-        }
-        .ogp-card-title {
-            font-size: 1.1em;
-            font-weight: 600;
+            padding: 20px 24px;
         }
         .ogp-card-description {
-            font-size: 0.9em;
+            font-size: 15px;
             color: #586069;
-            margin-top: 6px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            font-family: 'Inter', sans-serif;
         }
         .ogp-card-url {
             display: flex;
             align-items: center;
-            font-size: 0.85em;
+            font-size: 14px;
             color: #586069;
-            margin-top: 12px;
+            font-family: 'Inter', sans-serif;
         }
         .ogp-card-url img {
             width: 16px;
@@ -447,20 +453,25 @@
 
         /* --- Modal Detail Item Styles (Revised) --- */
         .detail-item {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
         .detail-item strong {
             display: block;
-            margin-bottom: 12px;
-            color: #333;
-            font-size: 1.1em;
+            margin-bottom: 18px;
+            color: #222;
+            font-size: 22px;
             font-family: 'Lora', serif;
+            font-weight: 700;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 8px;
         }
         .detail-item p, .detail-item div {
             margin: 0;
             white-space: pre-wrap;
             line-height: 1.8;
-            font-size: 15px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            color: #444;
         }
 
         /* --- Custom List Styles (Revised) --- */
@@ -469,18 +480,22 @@
             padding-left: 0;
         }
         .custom-list li {
-            padding-left: 1.5em;
+            padding-left: 2em;
             position: relative;
-            margin-bottom: 0.8em;
+            margin-bottom: 1em;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #444;
         }
         .custom-list li::before {
             content: '•';
             position: absolute;
-            left: 0;
+            left: 0.5em;
             top: -0.1em;
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-weight: bold;
-            color: var(--text-color);
+            color: var(--accent-color);
         }
 
         @media (max-width: 1024px) {
@@ -495,6 +510,7 @@
             .main-content {
                 margin-left: 0;
                 width: 100%;
+                padding: 40px 30px;
             }
             .hamburger-btn {
                 display: block;
@@ -505,8 +521,19 @@
         }
         @media (max-width: 768px) {
             .grid-3-col, .grid-2-col { grid-template-columns: 1fr; }
-            .project-modal { width: 90%; }
-            .main-content { padding: 40px 20px; }
+            .project-modal { 
+                width: 95%; 
+                max-width: none;
+            }
+            .project-modal-body {
+                padding: 30px 25px;
+            }
+            .project-modal-header {
+                padding: 20px 25px;
+            }
+            .main-content { 
+                padding: 30px 20px; 
+            }
         }
 
         /* --- About Page --- */
@@ -1065,15 +1092,14 @@
 
                 container.innerHTML = `
                     <a href="${url}" target="_blank" rel="noopener noreferrer" class="ogp-card">
+                        ${imageHtml}
                         <div class="ogp-card-info">
-                            <div class="ogp-card-title">${data.title}</div>
                             <div class="ogp-card-description">${data.description}</div>
                             <div class="ogp-card-url">
                                 ${data.favicon ? `<img src="${data.favicon}" alt="" onerror="this.style.display='none'">` : ''}
                                 <span>${data.siteName || new URL(url).hostname}</span>
                             </div>
                         </div>
-                        ${imageHtml}
                     </a>
                 `;
             } catch (error) {
