@@ -781,10 +781,10 @@
             projectsContainer.innerHTML = '<p>読み込み中...</p>';
             topProjectsContainer.innerHTML = '<p>読み込み中...</p>';
             
-            // 「公開状態」プロパティを「セレクト」タイプでフィルタリングするように修正
+            // 「公開状態」プロパティを「チェックボックス」タイプでフィルタリングするように修正
             const filter = {
                 property: PROP_NAMES.project.status,
-                select: { equals: '公開' }
+                checkbox: { equals: true }
             };
             const sorts = [
                 { property: PROP_NAMES.project.order, direction: 'ascending' }
