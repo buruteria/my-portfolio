@@ -617,7 +617,7 @@
     document.addEventListener('DOMContentLoaded', () => {
 
         const ARTICLES_DATABASE_ID = '202fc6b604188067baedcd752b1bb428';
-        const PROJECTS_DATABASE_ID = '[ProjectsページのNotionデータベースIDをここに貼り付け]';
+        const PROJECTS_DATABASE_ID = '213fc6b60418809abd4bfb8fe911629a';
         
         const PROP_NAMES = {
             article: {
@@ -628,14 +628,22 @@
                 role: 'Role',
                 media: 'Media',
                 featured: 'Featured',
-                created_time: 'Created time',
+                created_time: 'created_time',
                 priority: 'Priority'
             },
             project: {
-                title: 'Project Name',
-                image: 'Image',
-                category: 'Category',
-                description: 'Description'
+                title: 'プロジェクト名',
+                image: '添付画像',
+                category: '担当役割',
+                description: 'プロジェクト概要',
+                client: '取引先',
+                period: '制作期間',
+                summary: 'サマリ',
+                url: '関連URL',
+                otherImages: 'その他画像',
+                status: '公開状態',
+                order: '表示順',
+                relatedArticles: '関連記事'
             }
         };
 
