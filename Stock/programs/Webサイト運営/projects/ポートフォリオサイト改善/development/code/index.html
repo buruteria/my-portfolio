@@ -563,7 +563,7 @@
     document.addEventListener('DOMContentLoaded', () => {
 
         const ARTICLES_DATABASE_ID = '202fc6b604188067baedcd752b1bb428';
-        const PROJECTS_DATABASE_ID = '[ProjectsページのNotionデータベースIDをここに貼り付け]';
+        const PROJECTS_DATABASE_ID = '213fc6b60418809abd4bfb8fe911629a';
         
         const PROP_NAMES = {
             article: {
@@ -578,10 +578,18 @@
                 priority: 'Priority'
             },
             project: {
-                title: 'Project Name',
-                image: 'Image',
-                category: 'Category',
-                description: 'Description'
+                title: 'プロジェクト名',
+                image: '添付画像',
+                category: '担当役割',
+                description: 'プロジェクト概要',
+                client: '取引先',
+                period: '制作期間',
+                summary: 'サマリ',
+                url: '関連URL',
+                otherImages: 'その他画像',
+                status: '公開状態',
+                order: '表示順',
+                relatedArticles: '関連記事'
             }
         };
 
@@ -677,13 +685,27 @@
             topArticlesContainer.innerHTML = '<p>読み込み中...</p>';
 
             const sorts = [
-                { property: PROP_NAMES.article.priority, direction: 'ascending' },
                 { property: PROP_NAMES.article.created_time, direction: 'descending' }
             ];
 
             try {
                 const data = await callNotionApi(ARTICLES_DATABASE_ID, {}, sorts);
                 allArticlesData = data.results;
+                
+                // Priorityプロパティが存在する場合のみ、優先度でソート
+                if (allArticlesData.length > 0 && allArticlesData[0].properties[PROP_NAMES.article.priority]) {
+                    allArticlesData.sort((a, b) => {
+                        const priorityA = a.properties[PROP_NAMES.article.priority]?.number || 999;
+                        const priorityB = b.properties[PROP_NAMES.article.priority]?.number || 999;
+                        if (priorityA !== priorityB) {
+                            return priorityA - priorityB;
+                        }
+                        // 優先度が同じ場合は作成日時で降順ソート
+                        const dateA = new Date(a.properties[PROP_NAMES.article.created_time]?.created_time || 0);
+                        const dateB = new Date(b.properties[PROP_NAMES.article.created_time]?.created_time || 0);
+                        return dateB - dateA;
+                    });
+                }
                 
                 renderArticles('All');
 
@@ -711,8 +733,21 @@
             projectsContainer.innerHTML = '<p>読み込み中...</p>';
             topProjectsContainer.innerHTML = '<p>読み込み中...</p>';
             
+            // 公開状態でフィルタリング（公開のみ表示）
+            const filter = {
+                property: PROP_NAMES.project.status,
+                checkbox: {
+                    equals: true
+                }
+            };
+            
+            // 表示順でソート
+            const sorts = [
+                { property: PROP_NAMES.project.order, direction: 'ascending' }
+            ];
+            
             try {
-                const data = await callNotionApi(PROJECTS_DATABASE_ID, {});
+                const data = await callNotionApi(PROJECTS_DATABASE_ID, filter, sorts);
                 allProjectsData = data.results;
 
                 projectsContainer.innerHTML = '';
@@ -757,14 +792,27 @@
             const props = project.properties;
             const title = props[PROP_NAMES.project.title]?.title[0]?.plain_text || 'No Title';
             const imageUrl = props[PROP_NAMES.project.image]?.files[0]?.file?.url || props[PROP_NAMES.project.image]?.files[0]?.external?.url || '';
-            const description = props[PROP_NAMES.project.description]?.rich_text.map(t => t.plain_text).join('') || '詳細情報がありません。';
+            const description = props[PROP_NAMES.project.description]?.rich_text.map(t => t.plain_text).join('') || '';
+            const summary = props[PROP_NAMES.project.summary]?.rich_text.map(t => t.plain_text).join('') || '';
+            const client = props[PROP_NAMES.project.client]?.rich_text.map(t => t.plain_text).join('') || '';
+            const period = props[PROP_NAMES.project.period]?.rich_text.map(t => t.plain_text).join('') || '';
+            const role = props[PROP_NAMES.project.category]?.select?.name || '';
+            const relatedUrl = props[PROP_NAMES.project.url]?.url || '';
 
-            pageElements.projectModalContent.innerHTML = `
+            let modalContent = `
                 <span class="project-modal-close">&times;</span>
                 <h2 style="font-size: 28px; margin-bottom: 20px;">${title}</h2>
                 <div style="width: 100%; height: 300px; background-image: url('${imageUrl}'); background-size: cover; background-position: center; margin-bottom: 20px;"></div>
-                <p>${description.replace(/\n/g, '<br>')}</p>
             `;
+            
+            if (client) modalContent += `<p><strong>取引先:</strong> ${client}</p>`;
+            if (role) modalContent += `<p><strong>担当役割:</strong> ${role}</p>`;
+            if (period) modalContent += `<p><strong>制作期間:</strong> ${period}</p>`;
+            if (summary) modalContent += `<p><strong>サマリ:</strong><br>${summary.replace(/\n/g, '<br>')}</p>`;
+            if (description) modalContent += `<p><strong>プロジェクト概要:</strong><br>${description.replace(/\n/g, '<br>')}</p>`;
+            if (relatedUrl) modalContent += `<p><strong>関連URL:</strong> <a href="${relatedUrl}" target="_blank" rel="noopener noreferrer">${relatedUrl}</a></p>`;
+
+            pageElements.projectModalContent.innerHTML = modalContent;
             pageElements.projectModalOverlay.classList.add('active');
             pageElements.projectModalContent.querySelector('.project-modal-close').addEventListener('click', closeProjectModal);
         }
@@ -789,7 +837,7 @@
         
         function initialLoad() {
             fetchAllArticles();
-            //fetchAndRenderProjects();//
+            fetchAndRenderProjects();
         }
         
         // --- ▼ イベントリスナーの設定（修正版）▼ ---
