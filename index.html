@@ -628,7 +628,7 @@
                 role: 'Role',
                 media: 'Media',
                 featured: 'Featured',
-                created_time: '作成日時',
+                created_time: 'Created time',
                 priority: 'Priority'
             },
             project: {
@@ -863,8 +863,11 @@
         }
         
         function initialLoad() {
-            fetchAllArticles();
-            //fetchAndRenderProjects();//
+            // ArticlesとProjectsの読み込みを並列実行し、互いに影響しないようにする
+            Promise.allSettled([
+                fetchAllArticles(),
+                fetchAndRenderProjects()
+            ]);
         }
         
         // --- ▼ イベントリスナーの設定（修正版）▼ ---
