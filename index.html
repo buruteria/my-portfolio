@@ -323,16 +323,75 @@
         }
 
         .project-modal-overlay {
-            position: fixed; top: 0; right: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5); display: none; justify-content: flex-end; z-index: 1000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
+        }
+        .project-modal-overlay.active {
+            opacity: 1; visibility: visible;
         }
         .project-modal {
-            width: 50%; max-width: 600px; height: 100%; background-color: var(--bg-color);
-            padding: 40px; overflow-y: auto; transform: translateX(100%); transition: transform 0.3s ease-in-out;
+            width: 90%; max-width: 800px; max-height: 90vh;
+            background-color: var(--bg-color);
+            border-radius: 16px;
+            display: flex; flex-direction: column;
+            transform: scale(0.95); transition: transform 0.3s;
         }
-        .project-modal-overlay.active { display: flex; }
-        .project-modal-overlay.active .project-modal { transform: translateX(0); }
-        .project-modal-close { position: absolute; top: 20px; right: 20px; font-size: 30px; cursor: pointer; }
+        .project-modal-overlay.active .project-modal {
+            transform: scale(1);
+        }
+        .project-modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .project-modal-header h2 {
+            font-size: 24px;
+        }
+        .project-modal-close {
+            font-size: 30px;
+            cursor: pointer;
+            color: #aaa;
+            line-height: 1;
+        }
+        .project-modal-close:hover {
+            color: var(--text-color);
+        }
+        .project-modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+        }
+        .project-modal-meta {
+            font-size: 14px;
+        }
+        .project-modal-meta p {
+            margin-bottom: 15px;
+        }
+        .project-modal-meta strong {
+            display: block;
+            color: #888;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        .project-modal-main-image {
+            width: 100%;
+            padding-top: 60%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .project-modal-content h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
 
         /* --- ▼ カード内タグ用のスタイルを追加 ▼ --- */
 .card-tags {
@@ -836,14 +895,34 @@
             const props = project.properties;
             const title = props[PROP_NAMES.project.title]?.title[0]?.plain_text || 'No Title';
             const imageUrl = props[PROP_NAMES.project.image]?.files[0]?.file?.url || props[PROP_NAMES.project.image]?.files[0]?.external?.url || '';
-            const description = props[PROP_NAMES.project.description]?.rich_text.map(t => t.plain_text).join('') || '詳細情報がありません。';
+            const description = props[PROP_NAMES.project.description]?.rich_text.map(t => t.plain_text).join('') || '';
+            const summary = props[PROP_NAMES.project.summary]?.rich_text.map(t => t.plain_text).join('') || '';
+            const client = props[PROP_NAMES.project.client]?.rich_text[0]?.plain_text || '';
+            const period = props[PROP_NAMES.project.period]?.rich_text[0]?.plain_text || '';
+            const role = props[PROP_NAMES.project.category]?.select?.name || '';
+            const relatedUrl = props[PROP_NAMES.project.url]?.url || '';
 
-            pageElements.projectModalContent.innerHTML = `
-                <span class="project-modal-close">&times;</span>
-                <h2 style="font-size: 28px; margin-bottom: 20px;">${title}</h2>
-                <div style="width: 100%; height: 300px; background-image: url('${imageUrl}'); background-size: cover; background-position: center; margin-bottom: 20px;"></div>
-                <p>${description.replace(/\n/g, '<br>')}</p>
+            const modalHtml = `
+                <div class="project-modal-header">
+                    <h2>${title}</h2>
+                    <span class="project-modal-close">&times;</span>
+                </div>
+                <div class="project-modal-body">
+                    <div class="project-modal-meta">
+                        ${client ? `<p><strong>取引先</strong> ${client}</p>` : ''}
+                        ${role ? `<p><strong>担当役割</strong> ${role}</p>` : ''}
+                        ${period ? `<p><strong>制作期間</strong> ${period}</p>` : ''}
+                        ${relatedUrl ? `<p><strong>関連URL</strong> <a href="${relatedUrl}" target="_blank" rel="noopener noreferrer">${relatedUrl}</a></p>` : ''}
+                    </div>
+                    <div class="project-modal-content">
+                        ${imageUrl ? `<div class="project-modal-main-image" style="background-image: url('${imageUrl}')"></div>` : ''}
+                        ${summary ? `<h3>サマリ</h3><p>${summary.replace(/\n/g, '<br>')}</p>` : ''}
+                        ${description ? `<h3>プロジェクト概要</h3><p>${description.replace(/\n/g, '<br>')}</p>` : ''}
+                    </div>
+                </div>
             `;
+
+            pageElements.projectModalContent.innerHTML = modalHtml;
             pageElements.projectModalOverlay.classList.add('active');
             pageElements.projectModalContent.querySelector('.project-modal-close').addEventListener('click', closeProjectModal);
         }
