@@ -689,7 +689,7 @@
             ];
 
             try {
-                const data = await callNotionApi(ARTICLES_DATABASE_ID, {}, sorts);
+                const data = await callNotionApi(ARTICLES_DATABASE_ID, null, sorts);
                 allArticlesData = data.results;
                 
                 // Priorityプロパティが存在する場合のみ、優先度でソート
