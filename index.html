@@ -322,6 +322,25 @@
             text-decoration: underline;
         }
 
+        /* --- ▼ カード内タグ用のスタイルを追加 ▼ --- */
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: auto; /* タグをカード下部に配置 */
+            padding-top: 12px;
+        }
+        .card-tag-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            background-color: #f0f0f0;
+            color: #555;
+            border-radius: 999px;
+        }
+
+        /* --- Project Modal Styles (Revised) --- */
         .project-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.6);
@@ -333,7 +352,7 @@
             opacity: 1; visibility: visible;
         }
         .project-modal {
-            width: 90%; max-width: 800px; max-height: 90vh;
+            width: 90%; max-width: 960px; max-height: 90vh;
             background-color: var(--bg-color);
             border-radius: 16px;
             display: flex; flex-direction: column;
@@ -343,14 +362,16 @@
             transform: scale(1);
         }
         .project-modal-header {
-            padding: 20px 30px;
+            padding: 20px 40px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
         .project-modal-header h2 {
             font-size: 24px;
+            margin: 0;
         }
         .project-modal-close {
             font-size: 30px;
@@ -362,54 +383,105 @@
             color: var(--text-color);
         }
         .project-modal-body {
-            padding: 30px;
+            padding: 30px 40px;
             overflow-y: auto;
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 40px;
         }
-        .project-modal-meta {
-            font-size: 14px;
+        
+        /* --- OGP Card Styles (Revised) --- */
+        #ogp-card-container {
+            margin-bottom: 30px;
         }
-        .project-modal-meta p {
-            margin-bottom: 15px;
-        }
-        .project-modal-meta strong {
-            display: block;
-            color: #888;
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-        .project-modal-main-image {
-            width: 100%;
-            padding-top: 60%;
-            background-size: cover;
-            background-position: center;
+        .ogp-card {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e1e4e8;
             border-radius: 8px;
-            margin-top: 20px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            background-color: #fff;
+            transition: box-shadow 0.2s;
         }
-        .project-modal-content h3 {
-            font-size: 20px;
-            margin-bottom: 15px;
+        .ogp-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .ogp-card-image {
+            width: 100%;
+            max-height: 500px;
+            background-color: #f6f8fa;
+            border-bottom: 1px solid #e1e4e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .ogp-card-image img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+        .ogp-card-info {
+            padding: 16px 20px;
+        }
+        .ogp-card-title {
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        .ogp-card-description {
+            font-size: 0.9em;
+            color: #586069;
+            margin-top: 6px;
+        }
+        .ogp-card-url {
+            display: flex;
+            align-items: center;
+            font-size: 0.85em;
+            color: #586069;
+            margin-top: 12px;
+        }
+        .ogp-card-url img {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
         }
 
-        /* --- ▼ カード内タグ用のスタイルを追加 ▼ --- */
-.card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: auto; /* タグをカード下部に配置 */
-    padding-top: 12px;
-}
-.card-tag-pill {
-    display: inline-block;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 500;
-    background-color: #f0f0f0;
-    color: #555;
-    border-radius: 999px;
-}
+        /* --- Modal Detail Item Styles (Revised) --- */
+        .detail-item {
+            margin-bottom: 30px;
+        }
+        .detail-item strong {
+            display: block;
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 1.1em;
+            font-family: 'Lora', serif;
+        }
+        .detail-item p, .detail-item div {
+            margin: 0;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        /* --- Custom List Styles (Revised) --- */
+        .custom-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .custom-list li {
+            padding-left: 1.5em;
+            position: relative;
+            margin-bottom: 0.8em;
+        }
+        .custom-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: -0.1em;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--text-color);
+        }
 
         @media (max-width: 1024px) {
             .sidebar {
@@ -538,143 +610,6 @@
         .submit-button:hover {
             background-color: transparent;
             color: var(--accent-color);
-        }
-
-        #projectModal .modal-content {
-            padding: 30px;
-        }
-
-        #projectModal h2 {
-            margin-top: 0;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .modal-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-
-        .modal-column-main {
-            grid-column: 1 / -1;
-        }
-        
-        .modal-column-side {
-            grid-column: 1 / -1;
-        }
-
-        @media (min-width: 768px) {
-            .modal-grid {
-                grid-template-columns: 2fr 1fr;
-                gap: 30px;
-            }
-            .modal-column-main {
-                grid-column: 1 / 2;
-            }
-            .modal-column-side {
-                grid-column: 2 / 3;
-            }
-        }
-
-        .detail-item {
-            margin-bottom: 20px;
-        }
-
-        .detail-item strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-size: 0.9em;
-        }
-
-        .detail-item p {
-            margin: 0;
-            white-space: pre-wrap;
-            line-height: 1.6;
-        }
-
-        /* OGP Card Styles */
-        #ogp-card-container {
-            margin-bottom: 25px;
-        }
-
-        .ogp-card {
-            display: flex;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            background-color: #fff;
-            transition: box-shadow 0.2s;
-        }
-
-        .ogp-card:hover {
-            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-        }
-
-        .ogp-card-info {
-            flex: 1;
-            padding: 12px 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-width: 0; /* Prevents text overflow issues */
-        }
-        
-        .ogp-card-title {
-            font-size: 1em;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .ogp-card-description {
-            font-size: 0.85em;
-            color: #586069;
-            margin-top: 4px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .ogp-card-url {
-            display: flex;
-            align-items: center;
-            font-size: 0.8em;
-            color: #586069;
-            margin-top: 8px;
-        }
-
-        .ogp-card-url img {
-            width: 14px;
-            height: 14px;
-            margin-right: 6px;
-        }
-        
-        .ogp-card-image {
-            width: 150px;
-            background-color: #f6f8fa;
-        }
-
-        .ogp-card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        @media (max-width: 500px) {
-            .ogp-card {
-                flex-direction: column;
-            }
-            .ogp-card-image {
-                width: 100%;
-                height: 150px;
-            }
         }
     </style>
 </head>
@@ -1035,8 +970,30 @@
         
         function formatText(text) {
             if (!text) return '';
-            // `- `で始まる行を`・ `に置換
-            return text.replace(/^- /gm, '・ ');
+            
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            let html = '';
+            let inList = false;
+
+            for (const line of lines) {
+                if (line.startsWith('- ')) {
+                    if (!inList) {
+                        html += '<ul class="custom-list">';
+                        inList = true;
+                    }
+                    html += `<li>${line.substring(2).trim()}</li>`;
+                } else {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += `<p>${line}</p>`;
+                }
+            }
+            if (inList) {
+                html += '</ul>';
+            }
+            return html;
         }
         
         function openProjectModal(project) {
@@ -1056,17 +1013,12 @@
                 </div>
                 <div class="project-modal-body">
                     <div id="ogp-card-container"></div>
-                    <div class="modal-grid">
-                        <div class="modal-column-main">
-                            ${description ? `<div class="detail-item"><strong>プロジェクト概要</strong><p>${formatText(description)}</p></div>` : ''}
-                            ${summary ? `<div class="detail-item"><strong>サマリ</strong><p>${formatText(summary)}</p></div>` : ''}
-                        </div>
-                        <div class="modal-column-side">
-                            ${client ? `<div class="detail-item"><strong>取引先</strong><p>${client}</p></div>` : ''}
-                            ${role ? `<div class="detail-item"><strong>担当役割</strong><p>${role}</p></div>` : ''}
-                            ${period ? `<div class="detail-item"><strong>制作期間</strong><p>${period}</p></div>` : ''}
-                        </div>
-                    </div>
+                    
+                    ${summary ? `<div class="detail-item"><strong>サマリ</strong><div>${formatText(summary)}</div></div>` : ''}
+                    ${description ? `<div class="detail-item"><strong>プロジェクト概要</strong><div>${formatText(description)}</div></div>` : ''}
+                    ${client ? `<div class="detail-item"><strong>取引先</strong><p>${client}</p></div>` : ''}
+                    ${role ? `<div class="detail-item"><strong>担当役割</strong><p>${role}</p></div>` : ''}
+                    ${period ? `<div class="detail-item"><strong>制作期間</strong><p>${period}</p></div>` : ''}
                 </div>
             `;
 
@@ -1075,6 +1027,9 @@
             
             if (relatedUrl) {
                 fetchOgpData(relatedUrl);
+            } else {
+                const ogpContainer = document.getElementById('ogp-card-container');
+                if (ogpContainer) ogpContainer.style.display = 'none';
             }
 
             pageElements.projectModalContent.querySelector('.project-modal-close').addEventListener('click', closeProjectModal);
@@ -1151,81 +1106,73 @@
         
         // --- ▼ イベントリスナーの設定（修正版）▼ ---
 
-// ページ内ナビゲーションのリンクがクリックされた時の処理
-pageElements.navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const pageId = link.getAttribute('href').substring(1);
-        navigateTo(pageId);
-    });
-});
+        // ページ内ナビゲーションのリンクがクリックされた時の処理
+        pageElements.navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('href').substring(1);
+                navigateTo(pageId);
+            });
+        });
 
-// Articleページのタブボタンがクリックされた時の処理
-pageElements.articleTabs.addEventListener('click', (e) => {
-    if (e.target.classList.contains('tab-button')) {
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
-        const category = e.target.dataset.category;
-        renderArticles(category);
-    }
-});
-
-// Projectカードがクリックされた時の処理
-document.addEventListener('click', (e) => {
-    const card = e.target.closest('.project-card');
-    if (card) {
-        openProjectModal(card.dataset.projectId);
-    }
-});
-
-// Project詳細モーダルの外側をクリックした時に閉じる処理
-pageElements.projectModalOverlay.addEventListener('click', (e) => {
-    if (e.target === pageElements.projectModalOverlay) {
-        closeProjectModal();
-    }
-});
-
-// ハンバーガーボタンがクリックされた時の処理
-pageElements.hamburgerBtn.addEventListener('click', () => {
-    pageElements.sidebar.classList.toggle('is-open');
-});
-
-// Contact Formの非同期送信
-const contactForm = document.getElementById('contact-form');
-contactForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const data = new FormData(form);
-    const status = document.getElementById('form-status');
-
-    try {
-        const response = await fetch(form.action, {
-            method: form.method,
-            body: data,
-            headers: { 
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+        // Articleページのタブボタンがクリックされた時の処理
+        pageElements.articleTabs.addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab-button')) {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                const category = e.target.dataset.category;
+                renderArticles(category);
             }
         });
 
-        if (response.ok) {
-            status.textContent = 'ありがとうございます。メッセージが送信されました！';
-            status.style.color = 'green';
-            form.reset();
-        } else {
-            const responseData = await response.json();
-            if (Object.hasOwn(responseData, 'errors')) {
-                status.textContent = responseData["errors"].map(error => error["message"]).join(", ");
-            } else {
-                status.textContent = 'メッセージの送信に失敗しました。';
+        // Project詳細モーダルの外側をクリックした時に閉じる処理
+        pageElements.projectModalOverlay.addEventListener('click', (e) => {
+            if (e.target === pageElements.projectModalOverlay) {
+                closeProjectModal();
             }
-            status.style.color = 'red';
-        }
-    } catch (error) {
-        status.textContent = 'メッセージの送信中にエラーが発生しました。';
-        status.style.color = 'red';
-    }
-});
+        });
+
+        // ハンバーガーボタンがクリックされた時の処理
+        pageElements.hamburgerBtn.addEventListener('click', () => {
+            pageElements.sidebar.classList.toggle('is-open');
+        });
+
+        // Contact Formの非同期送信
+        const contactForm = document.getElementById('contact-form');
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = new FormData(form);
+            const status = document.getElementById('form-status');
+
+            try {
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: data,
+                    headers: { 
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    status.textContent = 'ありがとうございます。メッセージが送信されました！';
+                    status.style.color = 'green';
+                    form.reset();
+                } else {
+                    const responseData = await response.json();
+                    if (Object.hasOwn(responseData, 'errors')) {
+                        status.textContent = responseData["errors"].map(error => error["message"]).join(", ");
+                    } else {
+                        status.textContent = 'メッセージの送信に失敗しました。';
+                    }
+                    status.style.color = 'red';
+                }
+            } catch (error) {
+                status.textContent = 'メッセージの送信中にエラーが発生しました。';
+                status.style.color = 'red';
+            }
+        });
 
         initialLoad();
     });
