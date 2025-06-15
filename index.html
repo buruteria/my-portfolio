@@ -738,13 +738,9 @@
             articlesContainer.innerHTML = '<p>読み込み中...</p>';
             topArticlesContainer.innerHTML = '<p>読み込み中...</p>';
 
-            const sorts = [
-                { property: PROP_NAMES.article.created_time, direction: 'descending' }
-            ];
-
             try {
-                // 空のフィルターの代わりにnullを渡すように修正
-                const data = await callNotionApi(ARTICLES_DATABASE_ID, null, sorts);
+                // APIでのソートを一旦停止し、クライアントサイドでのソートに任せる
+                const data = await callNotionApi(ARTICLES_DATABASE_ID, null, []);
                 allArticlesData = data.results;
                 
                 // クライアントサイドで安全にソート処理を行う
@@ -785,10 +781,10 @@
             projectsContainer.innerHTML = '<p>読み込み中...</p>';
             topProjectsContainer.innerHTML = '<p>読み込み中...</p>';
             
-            // 公開状態でフィルタリングし、表示順でソート
+            // 「公開状態」プロパティを「セレクト」タイプでフィルタリングするように修正
             const filter = {
                 property: PROP_NAMES.project.status,
-                checkbox: { equals: true }
+                select: { equals: '公開' }
             };
             const sorts = [
                 { property: PROP_NAMES.project.order, direction: 'ascending' }
