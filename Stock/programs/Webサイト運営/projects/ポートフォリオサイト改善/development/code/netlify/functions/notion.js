@@ -19,10 +19,10 @@ export const handler = async (event) => {
     const NOTION_API_ENDPOINT = `https://api.notion.com/v1/databases/${databaseId}/query`;
     
     const requestBody = {};
-    if (filter && Object.keys(filter).length > 0) {
+    if (filter && typeof filter === 'object' && Object.keys(filter).length > 0) {
       requestBody.filter = filter;
     }
-    if (sorts && sorts.length > 0) {
+    if (sorts && Array.isArray(sorts) && sorts.length > 0) {
       requestBody.sorts = sorts;
     }
     console.log("Notion APIへのリクエストボディ:", JSON.stringify(requestBody, null, 2));
