@@ -731,8 +731,8 @@
             topArticlesContainer.innerHTML = '<p>読み込み中...</p>';
 
             try {
-                // ソート条件をAPIコールから削除し、まず全データを取得する
-                const data = await callNotionApi(ARTICLES_DATABASE_ID, {}, []);
+                // 空のフィルターの代わりにnullを渡すように修正
+                const data = await callNotionApi(ARTICLES_DATABASE_ID, null, sorts);
                 allArticlesData = data.results;
                 
                 // クライアントサイドで安全にソート処理を行う
@@ -773,8 +773,17 @@
             projectsContainer.innerHTML = '<p>読み込み中...</p>';
             topProjectsContainer.innerHTML = '<p>読み込み中...</p>';
             
+            // 公開状態でフィルタリングし、表示順でソート
+            const filter = {
+                property: PROP_NAMES.project.status,
+                checkbox: { equals: true }
+            };
+            const sorts = [
+                { property: PROP_NAMES.project.order, direction: 'ascending' }
+            ];
+
             try {
-                const data = await callNotionApi(PROJECTS_DATABASE_ID, {});
+                const data = await callNotionApi(PROJECTS_DATABASE_ID, filter, sorts);
                 allProjectsData = data.results;
 
                 projectsContainer.innerHTML = '';

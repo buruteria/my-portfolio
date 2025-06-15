@@ -1,9 +1,14 @@
 export const handler = async (event) => {
   // ログは、Netlifyの管理画面 > Functions > notion で確認できます。
-
   console.log("--- 関数がトリガーされました ---");
+  console.log("受信したイベントボディ:", event.body);
 
   try {
+    // ボディが空でないことを確認
+    if (!event.body) {
+      throw new Error("リクエストボディが空です。");
+    }
+
     const { databaseId, filter, sorts } = JSON.parse(event.body);
     console.log("受け取ったデータベースID:", databaseId);
     console.log("受け取ったフィルター:", JSON.stringify(filter, null, 2));
@@ -18,10 +23,16 @@ export const handler = async (event) => {
 
     const NOTION_API_ENDPOINT = `https://api.notion.com/v1/databases/${databaseId}/query`;
     
-    const requestBody = {
-        filter: filter,
-        sorts: sorts
-    };
+    const requestBody = {};
+    // filterがnullでなく、かつ空のオブジェクトでもない場合のみ追加
+    if (filter && typeof filter === 'object' && Object.keys(filter).length > 0) {
+        requestBody.filter = filter;
+    }
+    // sortsがnullでなく、かつ空の配列でもない場合のみ追加
+    if (sorts && Array.isArray(sorts) && sorts.length > 0) {
+        requestBody.sorts = sorts;
+    }
+
     console.log("Notion APIへのリクエストボディ:", JSON.stringify(requestBody, null, 2));
     
     const response = await fetch(NOTION_API_ENDPOINT, {
@@ -39,7 +50,8 @@ export const handler = async (event) => {
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Notion APIからのエラー応答:", errorData);
-      throw new Error(errorData.message || 'Notion API Error');
+      // Notionからのエラーメッセージをクライアントに返す
+      throw new Error(JSON.stringify(errorData));
     }
 
     const data = await response.json();
@@ -47,6 +59,9 @@ export const handler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(data)
     };
 
@@ -54,6 +69,9 @@ export const handler = async (event) => {
     console.error("--- 関数実行中にエラーが発生しました ---", error);
     return {
       statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ error: error.message })
     };
   }
