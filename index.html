@@ -6,7 +6,7 @@
     <title>Tetsuhiro Ishida - Portfolio</title>
     <style>
         /* --- 全体のデザインとフォント設定 --- */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:wght@400;500;700&display=swap');
 
         :root {
             --bg-color: #F8F7F2;
@@ -210,17 +210,59 @@
         .grid-2-col {
             grid-template-columns: repeat(2, 1fr);
         }
+
+        /* --- スケルトンローダーのスタイル --- */
+        .skeleton {
+            background: #e0e0e0;
+            background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+            border-radius: 5px;
+            background-size: 200% 100%;
+            animation: 1.5s shine linear infinite;
+        }
+        .card.is-loading .card-image {
+             min-height: 180px;
+        }
+        .card.is-loading .skeleton-image {
+            height: 180px;
+            border-radius: 16px 16px 0 0;
+        }
+        .card.is-loading .card-content {
+            background: #fff;
+        }
+        .card.is-loading .skeleton-title {
+            height: 24px;
+            width: 80%;
+            margin-bottom: 12px;
+        }
+        .card.is-loading .skeleton-text {
+            height: 16px;
+            width: 60%;
+        }
+        @keyframes shine {
+            to {
+                background-position-x: -200%;
+            }
+        }
+
+        /* --- カード表示アニメーション --- */
         .card {
             background-color: #fff;
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            transition: box-shadow 0.3s, transform 0.3s;
+            transition: box-shadow 0.3s, transform 0.3s, opacity 0.5s;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
         }
+        .card.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px) !important; /* is-visibleの上書き */
             box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         }
         .card-image {
@@ -821,6 +863,39 @@
 
         let allArticlesData = [];
         let allProjectsData = [];
+        let observer;
+
+        // --- Intersection Observerの初期化 ---
+        function initIntersectionObserver() {
+            observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // is-visibleクラスを少し遅延させて追加し、CSSトランジションを発火させる
+                        setTimeout(() => {
+                            entry.target.classList.add('is-visible');
+                        }, 100);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: "0px 0px -50px 0px" });
+        }
+
+        // --- スケルトンカードをレンダリング ---
+        function renderSkeletonCard(container, count) {
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const cardHtml = `
+                    <div class="card is-loading">
+                        <div class="card-image skeleton skeleton-image"></div>
+                        <div class="card-content">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text"></div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            }
+        }
 
         async function callNotionApi(databaseId, filter, sorts) {
             try {
@@ -854,17 +929,21 @@
             const roles = props[PROP_NAMES.article.role]?.multi_select || [];
             const tagsHtml = roles.map(tag => `<span class="card-tag-pill">#${tag.name}</span>`).join('');
 
-            const cardHtml = `
-                <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="card">
-                    <div class="card-image" style="background-image: url('${imageUrl}')"></div>
-                    <div class="card-content">
-                        <p class="card-title">${title}</p>
-                        <p class="card-media">${media}</p>
-                        <div class="card-tags">${tagsHtml}</div>
-                    </div>
-                </a>
+            const card = document.createElement('a');
+            card.href = pageUrl;
+            card.target = "_blank";
+            card.rel = "noopener noreferrer";
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-image" style="background-image: url('${imageUrl}')"></div>
+                <div class="card-content">
+                    <p class="card-title">${title}</p>
+                    <p class="card-media">${media}</p>
+                    <div class="card-tags">${tagsHtml}</div>
+                </div>
             `;
-            container.insertAdjacentHTML('beforeend', cardHtml);
+            container.appendChild(card);
+            observer.observe(card);
         }
 
         function renderArticles(category = 'All') {
@@ -893,15 +972,14 @@
         async function fetchAllArticles() {
             const articlesContainer = pageElements.articlesGrid;
             const topArticlesContainer = pageElements.topArticlesGrid;
-            articlesContainer.innerHTML = '<p>読み込み中...</p>';
-            topArticlesContainer.innerHTML = '<p>読み込み中...</p>';
+            
+            renderSkeletonCard(articlesContainer, 6);
+            renderSkeletonCard(topArticlesContainer, 3);
 
             try {
-                // APIでのソートを一旦停止し、クライアントサイドでのソートに任せる
                 const data = await callNotionApi(ARTICLES_DATABASE_ID, null, []);
                 allArticlesData = data.results;
                 
-                // クライアントサイドで安全にソート処理を行う
                 allArticlesData.sort((a, b) => {
                     const priorityA = a.properties[PROP_NAMES.article.priority]?.number ?? 999;
                     const priorityB = b.properties[PROP_NAMES.article.priority]?.number ?? 999;
@@ -913,9 +991,10 @@
                     return dateB - dateA;
                 });
                 
+                articlesContainer.innerHTML = ''; // Clear skeletons
                 renderArticles('All');
 
-                topArticlesContainer.innerHTML = '';
+                topArticlesContainer.innerHTML = ''; // Clear skeletons
                 const featuredArticles = allArticlesData
                     .filter(article => article.properties[PROP_NAMES.article.featured]?.checkbox === true)
                     .slice(0, 3);
@@ -936,10 +1015,10 @@
         async function fetchAndRenderProjects() {
             const projectsContainer = pageElements.projectsGrid;
             const topProjectsContainer = pageElements.topProjectsGrid;
-            projectsContainer.innerHTML = '<p>読み込み中...</p>';
-            topProjectsContainer.innerHTML = '<p>読み込み中...</p>';
+
+            renderSkeletonCard(projectsContainer, 4);
+            renderSkeletonCard(topProjectsContainer, 2);
             
-            // 「公開状態」プロパティを「チェックボックス」タイプでフィルタリングするように修正
             const filter = {
                 property: PROP_NAMES.project.status,
                 checkbox: { equals: true }
@@ -952,8 +1031,8 @@
                 const data = await callNotionApi(PROJECTS_DATABASE_ID, filter, sorts);
                 allProjectsData = data.results;
 
-                projectsContainer.innerHTML = '';
-                topProjectsContainer.innerHTML = '';
+                projectsContainer.innerHTML = ''; // Clear skeletons
+                topProjectsContainer.innerHTML = ''; // Clear skeletons
 
                 if (allProjectsData.length === 0) {
                      projectsContainer.innerHTML = topProjectsContainer.innerHTML = '<p>表示できるプロジェクトがありません。</p>';
@@ -993,6 +1072,7 @@
             
             card.addEventListener('click', () => openProjectModal(project));
             container.appendChild(card);
+            observer.observe(card);
         }
         
         function formatText(text) {
@@ -1081,7 +1161,7 @@
                 if (!response.ok) throw new Error('Response not OK');
                 const data = await response.json();
 
-                if (!data.title) {
+                if (!data.description) { // Changed from title to description
                     throw new Error('No OGP data found');
                 }
 
@@ -1123,7 +1203,7 @@
         }
         
         function initialLoad() {
-            // ArticlesとProjectsの読み込みを並列実行し、互いに影響しないようにする
+            initIntersectionObserver();
             Promise.allSettled([
                 fetchAllArticles(),
                 fetchAndRenderProjects()

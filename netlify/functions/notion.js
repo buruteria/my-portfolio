@@ -1,78 +1,71 @@
-export const handler = async (event) => {
-  // ログは、Netlifyの管理画面 > Functions > notion で確認できます。
-  console.log("--- 関数がトリガーされました ---");
-  console.log("受信したイベントボディ:", event.body);
+const { Client } = require("@notionhq/client");
 
-  try {
-    // ボディが空でないことを確認
-    if (!event.body) {
-      throw new Error("リクエストボディが空です。");
+// シンプルなインメモリキャッシュ
+const cache = {};
+const CACHE_TTL_SECONDS = 300; // 5分間キャッシュを保持
+
+const notion = new Client({ auth: process.env.NOTION_API_KEY });
+
+exports.handler = async function(event, context) {
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    const { databaseId, filter, sorts } = JSON.parse(event.body);
-    console.log("受け取ったデータベースID:", databaseId);
-    console.log("受け取ったフィルター:", JSON.stringify(filter, null, 2));
-    console.log("受け取ったソート条件:", JSON.stringify(sorts, null, 2));
+    try {
+        const { databaseId, filter, sorts } = JSON.parse(event.body);
 
-    const NOTION_API_KEY = process.env.NOTION_API_KEY;
-    if (!NOTION_API_KEY) {
-      console.error("エラー: 環境変数 NOTION_API_KEY が設定されていません。");
-      throw new Error("APIキーがサーバーに設定されていません。");
+        if (!databaseId) {
+            return { statusCode: 400, body: 'Database ID is required' };
+        }
+
+        // キャッシュキーを生成
+        const cacheKey = JSON.stringify({ databaseId, filter, sorts });
+        const cachedData = cache[cacheKey];
+
+        // キャッシュが存在し、有効期限内の場合
+        if (cachedData && (Date.now() - cachedData.timestamp < CACHE_TTL_SECONDS * 1000)) {
+            return {
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/json', 'X-Cache-Status': 'Hit' },
+                body: cachedData.data,
+            };
+        }
+
+        // Notion APIへのリクエストを構築
+        const requestPayload = {
+            database_id: databaseId,
+        };
+        if (filter) {
+            requestPayload.filter = filter;
+        }
+        if (sorts && sorts.length > 0) {
+            requestPayload.sorts = sorts;
+        }
+
+        const response = await notion.databases.query(requestPayload);
+        
+        const responseBody = JSON.stringify(response);
+
+        // 結果をキャッシュに保存
+        cache[cacheKey] = {
+            timestamp: Date.now(),
+            data: responseBody,
+        };
+
+        return {
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/json', 'X-Cache-Status': 'Miss' },
+            body: responseBody,
+        };
+
+    } catch (error) {
+        console.error('Notion API Error:', error);
+        return {
+            statusCode: error.status || 500,
+            body: JSON.stringify({
+                message: error.message || "An internal server error occurred.",
+                code: error.code
+            }),
+        };
     }
-    console.log("APIキーは正常に読み込まれました。");
-
-    const NOTION_API_ENDPOINT = `https://api.notion.com/v1/databases/${databaseId}/query`;
-    
-    const requestBody = {};
-    // filterがnullでなく、かつ空のオブジェクトでもない場合のみ追加
-    if (filter && typeof filter === 'object' && Object.keys(filter).length > 0) {
-        requestBody.filter = filter;
-    }
-    // sortsがnullでなく、かつ空の配列でもない場合のみ追加
-    if (sorts && Array.isArray(sorts) && sorts.length > 0) {
-        requestBody.sorts = sorts;
-    }
-
-    console.log("Notion APIへのリクエストボディ:", JSON.stringify(requestBody, null, 2));
-    
-    const response = await fetch(NOTION_API_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${NOTION_API_KEY}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': '2022-06-28'
-      },
-      body: JSON.stringify(requestBody)
-    });
-    
-    console.log("Notion APIからの応答ステータス:", response.status, response.statusText);
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Notion APIからのエラー応答:", errorData);
-      // Notionからのエラーメッセージをクライアントに返す
-      throw new Error(JSON.stringify(errorData));
-    }
-
-    const data = await response.json();
-    console.log("Notion APIから正常なデータを受信しました。");
-
-    return {
-      statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data)
-    };
-
-  } catch (error) {
-    console.error("--- 関数実行中にエラーが発生しました ---", error);
-    return {
-      statusCode: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ error: error.message })
-    };
-  }
 };
