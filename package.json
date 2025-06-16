@@ -1,15 +1,1 @@
-{
-  "name": "my-portfolio-site",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "cheerio": "^1.0.0-rc.12"
-  }
-}
+{"name": "tetsuhiro-portfolio","version": "1.0.0","description": "Tetsuhiro Ishida Portfolio Website","main": "index.html","dependencies": {"@notionhq/client": "^2.2.15","cheerio": "^1.0.0-rc.12"},"scripts": {"build": "echo No build process required"},"keywords": ["portfolio", "notion", "netlify"],"author": "Tetsuhiro Ishida","license": "MIT"}

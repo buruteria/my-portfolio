@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@notionhq/client": "^2.2.15",
-    "node-cache": "^5.1.2"
-  }
-} 
