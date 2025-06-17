@@ -526,11 +526,10 @@
         <section id="articles" class="page-section">
             <h2 class="section-title">Articles</h2>
             <div id="article-tabs" class="article-tabs">
-                <button class="tab-button active" data-category="All">All</button>
-                <button class="tab-button" data-category="Biz/Tech">Biz/Tech</button>
                 <button class="tab-button" data-category="Design">Design</button>
-                <button class="tab-button" data-category="Creative">Creative</button>
                 <button class="tab-button" data-category="Academic">Academic</button>
+                <button class="tab-button" data-category="Biz/Tech">Biz/Tech</button>
+                <button class="tab-button" data-category="Creative">Creative</button>
             </div>
             <div id="articles-grid" class="grid-container grid-3-col"></div>
         </section>
@@ -664,20 +663,17 @@
             container.insertAdjacentHTML('beforeend', cardHtml);
         }
 
-        function renderArticles(category = 'All') {
+        function renderArticles(category) {
             const container = pageElements.articlesGrid;
             container.innerHTML = '';
             
             let articlesToRender;
 
-            if (category === 'All') {
-                articlesToRender = allArticlesData.filter(article => article.properties[PROP_NAMES.article.featured]?.checkbox === true);
-            } else {
-                articlesToRender = allArticlesData.filter(article => {
-                    const cat = article.properties[PROP_NAMES.article.category]?.select?.name;
-                    return cat === category;
-                });
-            }
+            // Articlesページでは常にカテゴリでフィルタリング
+            articlesToRender = allArticlesData.filter(article => {
+                const cat = article.properties[PROP_NAMES.article.category]?.select?.name;
+                return cat === category;
+            });
 
             if (articlesToRender.length === 0) {
                 container.innerHTML = '<p>表示できる記事がありません。</p>';
@@ -716,7 +712,17 @@
                     });
                 }
                 
-                renderArticles('All');
+                // デフォルトカテゴリを 'Design' に設定
+                const defaultCategory = 'Design';
+                renderArticles(defaultCategory);
+
+                // 対応するタブをアクティブにする
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.category === defaultCategory) {
+                        btn.classList.add('active');
+                    }
+                });
 
                 topArticlesContainer.innerHTML = '';
                 const featuredArticles = allArticlesData
