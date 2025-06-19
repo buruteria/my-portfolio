@@ -689,19 +689,28 @@
             articlesContainer.innerHTML = '<p>読み込み中...</p>';
             topArticlesContainer.innerHTML = '<p>読み込み中...</p>';
 
-            // ソート機能を一旦無効化してエラーを回避
-            const sorts = [];
+            const sorts = [
+                { property: PROP_NAMES.article.created_time, direction: 'descending' }
+            ];
 
             try {
                 const data = await callNotionApi(ARTICLES_DATABASE_ID, null, sorts);
                 allArticlesData = data.results;
                 
-                // JavaScriptで作成日時の降順ソート（新しい順）
-                allArticlesData.sort((a, b) => {
-                    const dateA = new Date(a.created_time || 0);
-                    const dateB = new Date(b.created_time || 0);
-                    return dateB - dateA; // 降順（新しい順）
-                });
+                // Priorityプロパティが存在する場合のみ、優先度でソート
+                if (allArticlesData.length > 0 && allArticlesData[0].properties[PROP_NAMES.article.priority]) {
+                    allArticlesData.sort((a, b) => {
+                        const priorityA = a.properties[PROP_NAMES.article.priority]?.number || 999;
+                        const priorityB = b.properties[PROP_NAMES.article.priority]?.number || 999;
+                        if (priorityA !== priorityB) {
+                            return priorityA - priorityB;
+                        }
+                        // 優先度が同じ場合は作成日時で降順ソート
+                        const dateA = new Date(a.properties[PROP_NAMES.article.created_time]?.created_time || 0);
+                        const dateB = new Date(b.properties[PROP_NAMES.article.created_time]?.created_time || 0);
+                        return dateB - dateA;
+                    });
+                }
                 
                 // デフォルトカテゴリを 'Design' に設定
                 const defaultCategory = 'Design';
