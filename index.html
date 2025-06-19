@@ -1066,11 +1066,16 @@
                         <img src="${data.image}" alt="OGP Image" onerror="this.parentElement.style.display='none'">
                     </div>` : '';
 
+                // descriptionの文字数制限（280文字）
+                const truncatedDescription = data.description && data.description.length > 280 
+                    ? data.description.substring(0, 280) + '…' 
+                    : data.description;
+
                 container.innerHTML = `
                     <a href="${url}" target="_blank" rel="noopener noreferrer" class="ogp-card">
                         ${imageHtml}
                         <div class="ogp-card-info">
-                            <div class="ogp-card-description">${data.description}</div>
+                            <div class="ogp-card-description">${truncatedDescription}</div>
                             <div class="ogp-card-url">
                                 ${data.favicon ? `<img src="${data.favicon}" alt="" onerror="this.style.display='none'">` : ''}
                                 <span>${data.siteName || new URL(url).hostname}</span>
