@@ -268,6 +268,14 @@
             text-align: center;
             padding: 20px;
             line-height: 1.3;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .project-card-image.loading {
+            background-color: #f0f0f0;
+            color: #888;
+            font-size: 14px;
         }
         .project-card-content {
             padding: 16px 20px;
@@ -929,15 +937,44 @@
             }
         }
         
+        async function fetchOgpImageForCard(url, cardElement) {
+            const imageDiv = cardElement.querySelector('.project-card-image');
+            if (!imageDiv) return;
+
+            try {
+                const response = await fetch('/.netlify/functions/ogp-fetcher', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                if (!response.ok) throw new Error('Response not OK');
+                const data = await response.json();
+
+                if (data.image) {
+                    imageDiv.style.backgroundImage = `url('${data.image}')`;
+                    imageDiv.style.color = 'transparent'; // 文字を透明にして画像を表示
+                } else {
+                    // OGP画像がない場合はタイトルを表示
+                    imageDiv.textContent = data.title || imageDiv.textContent;
+                    imageDiv.classList.remove('loading');
+                }
+            } catch (error) {
+                console.error('Error fetching OGP image for card:', error);
+                imageDiv.classList.remove('loading');
+            }
+        }
+
         function renderProjectCard(container, project) {
              const props = project.properties;
              const title = props[PROP_NAMES.project.title]?.title[0]?.plain_text || 'No Title';
              const client = props[PROP_NAMES.project.client]?.rich_text.map(t => t.plain_text).join('') || '';
              const category = props[PROP_NAMES.project.category]?.select?.name || '';
+             const relatedUrl = props[PROP_NAMES.project.url]?.url || '';
              
              const cardHtml = `
                 <div class="card project-card" data-project-id="${project.id}">
-                    <div class="project-card-image">${client || 'Client'}</div>
+                    <div class="project-card-image loading">${relatedUrl ? '読み込み中...' : (client || 'Client')}</div>
                     <div class="project-card-content">
                         <p class="project-card-title">${title}</p>
                         <p class="project-card-role">${category}</p>
@@ -945,6 +982,12 @@
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', cardHtml);
+            
+            // OGP画像を非同期で取得
+            if (relatedUrl) {
+                const cardElement = container.lastElementChild;
+                fetchOgpImageForCard(relatedUrl, cardElement);
+            }
         }
         
         function formatText(text) {
