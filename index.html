@@ -689,28 +689,15 @@
             articlesContainer.innerHTML = '<p>読み込み中...</p>';
             topArticlesContainer.innerHTML = '<p>読み込み中...</p>';
 
-            const sorts = [
-                { property: PROP_NAMES.article.created_time, direction: 'descending' }
-            ];
+            // ソート機能を一旦無効化してエラーを回避
+            const sorts = [];
 
             try {
                 const data = await callNotionApi(ARTICLES_DATABASE_ID, null, sorts);
                 allArticlesData = data.results;
                 
-                // Priorityプロパティが存在する場合のみ、優先度でソート
-                if (allArticlesData.length > 0 && allArticlesData[0].properties[PROP_NAMES.article.priority]) {
-                    allArticlesData.sort((a, b) => {
-                        const priorityA = a.properties[PROP_NAMES.article.priority]?.number || 999;
-                        const priorityB = b.properties[PROP_NAMES.article.priority]?.number || 999;
-                        if (priorityA !== priorityB) {
-                            return priorityA - priorityB;
-                        }
-                        // 優先度が同じ場合は作成日時で降順ソート
-                        const dateA = new Date(a.properties[PROP_NAMES.article.created_time]?.created_time || 0);
-                        const dateB = new Date(b.properties[PROP_NAMES.article.created_time]?.created_time || 0);
-                        return dateB - dateA;
-                    });
-                }
+                // ソート機能を一旦無効化（プロパティ名の確認が必要）
+                // 必要に応じて後で有効化
                 
                 // デフォルトカテゴリを 'Design' に設定
                 const defaultCategory = 'Design';
