@@ -172,12 +172,16 @@
         .main-visual {
             width: 100%;
             height: 60vh;
+            min-height: 300px;
+            max-height: 500px;
             background-color: #ccc;
             margin-bottom: 60px;
             background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2940&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
             border-radius: 16px;
+            overflow: hidden;
         }
         .intro-text {
             max-width: 720px;
@@ -252,9 +256,13 @@
         }
         .card-image {
             width: 100%;
-            padding-top: 56.25%;
+            min-height: 200px;
+            max-height: 250px;
             background-size: cover;
-            background-position: center;
+            background-position: center top;
+            background-repeat: no-repeat;
+            position: relative;
+            overflow: hidden;
         }
         .card-content {
             padding: 20px 24px;
@@ -482,17 +490,22 @@
         }
         .ogp-card-image {
             width: 100%;
+            min-height: 200px;
             max-height: 400px;
             background-color: #f6f8fa;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
         .ogp-card-image img {
             width: 100%;
             height: auto;
-            object-fit: contain;
+            max-height: 400px;
+            object-fit: cover;
+            object-position: center top;
+            transition: transform 0.3s ease;
         }
         .ogp-card-info {
             padding: 20px 24px;
@@ -578,9 +591,29 @@
             .grid-3-col, .grid-2-col, .grid-4-col {
                 grid-template-columns: repeat(2, 1fr);
             }
+            
+            /* About詳細のレスポンシブ調整 */
+            .profile-content {
+                flex-direction: column;
+                gap: 40px;
+                text-align: center;
+            }
+            .profile-photo {
+                flex: none;
+                align-self: center;
+            }
+            .about-photo-circle {
+                width: 150px;
+                height: 150px;
+            }
+            .profile-text {
+                text-align: center;
+            }
         }
         @media (max-width: 768px) {
-            .grid-3-col, .grid-2-col, .grid-4-col { grid-template-columns: 1fr; }
+            .grid-3-col, .grid-2-col, .grid-4-col { 
+                grid-template-columns: 1fr; 
+            }
             .project-modal { 
                 width: 95%; 
                 max-width: none;
@@ -594,61 +627,216 @@
             .main-content { 
                 padding: 30px 20px; 
             }
+            
+            /* 小さい画面での調整 */
+            .about-me {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            .about-me .photo {
+                width: 120px;
+                height: 120px;
+                margin: 0 auto;
+            }
+            .about-photo-circle {
+                width: 120px;
+                height: 120px;
+            }
+            
+            /* About セクションの間隔調整 */
+            .about-intro-section,
+            .about-service-section,
+            .about-profile-section,
+            .about-sns-section,
+            .about-column-section {
+                margin-bottom: 60px;
+                padding: 0 15px;
+            }
+            
+            /* OGPカード画像の調整 */
+            .ogp-card-image {
+                max-height: 250px;
+            }
+            .ogp-card-image img {
+                width: 100%;
+                height: auto;
+                max-height: 250px;
+                object-fit: cover;
+                object-position: center top;
+            }
+            
+            /* プロジェクトカード画像の高さ調整 */
+            .project-card-image {
+                height: 120px;
+                padding: 15px;
+                font-size: 16px;
+            }
+            
+            /* カードタイトルのフォントサイズ調整 */
+            .card-title {
+                font-size: 18px;
+            }
+            .project-card-title {
+                font-size: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* 非常に小さい画面での追加調整 */
+            .main-content { 
+                padding: 20px 15px; 
+            }
+            .section-title {
+                font-size: 28px;
+            }
+            .project-card-image {
+                height: 100px;
+                padding: 10px;
+                font-size: 14px;
+            }
+            .card-title {
+                font-size: 16px;
+            }
+            .project-card-title {
+                font-size: 14px;
+            }
+            
+            /* OGPカード画像をさらに最適化 */
+            .ogp-card-image {
+                max-height: 200px;
+            }
+            .ogp-card-image img {
+                max-height: 200px;
+            }
+            
+            /* メインビジュアルの調整 */
+            .main-visual {
+                height: 40vh;
+                min-height: 250px;
+                max-height: 350px;
+                margin-bottom: 40px;
+            }
+            
+            /* 記事カード画像の調整 */
+            .card-image {
+                min-height: 150px;
+                max-height: 200px;
+            }
         }
 
-        /* --- About Page --- */
-        .about-content {
-            max-width: 800px;
-            margin: 40px auto;
+        /* --- About Page Styles --- */
+        /* 共通スタイル */
+        .about-intro-section,
+        .about-service-section,
+        .about-profile-section,
+        .about-sns-section,
+        .about-column-section {
+            max-width: 900px;
+            margin: 0 auto 80px auto;
+            padding: 0 20px;
         }
-        .about-me-detailed {
+        
+        .about-intro-section h3,
+        .about-service-section h3,
+        .about-profile-section h3,
+        .about-sns-section h3,
+        .about-column-section h3 {
+            font-size: 32px;
+            font-family: 'Lora', serif;
+            font-weight: 500;
+            margin-bottom: 30px;
+            text-align: center;
+            color: var(--accent-color);
+        }
+        
+        /* About Me・Service・Column セクション（中央揃え・ワイド） */
+        .about-intro-section,
+        .about-service-section,
+        .about-column-section {
+            text-align: center;
+        }
+        
+        .about-intro-section p,
+        .about-service-section p,
+        .about-column-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 1.5em;
+            color: var(--text-color);
+        }
+        
+        /* Service リスト */
+        .service-list {
+            list-style: none;
+            padding-left: 0;
+            text-align: left;
+            max-width: 700px;
+            margin: 30px auto;
+        }
+        
+        .service-list li {
+            margin-bottom: 1.2em;
+            padding-left: 1.5em;
+            position: relative;
+            line-height: 1.7;
+        }
+        
+        .service-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        /* Profile セクション（左1/4・右3/4レイアウト） */
+        .profile-content {
             display: flex;
-            gap: 50px;
+            gap: 60px;
             align-items: flex-start;
+            margin-top: 40px;
         }
-        .about-photo {
+        
+        .profile-photo {
+            flex: 0 0 25%; /* 1/4の幅で固定 */
+            display: flex;
+            justify-content: center;
+        }
+        
+        .about-photo-circle {
             width: 180px;
-            height: 220px;
-            border-radius: 8px;
+            height: 180px;
+            border-radius: 50%;
             background-color: #ccc;
-            flex-shrink: 0;
             background-image: url('https://images.unsplash.com/photo-1531123414780-f74242c2b052?q=80&w=2787&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
-            margin-top: 10px;
+            flex-shrink: 0;
         }
-        .about-text {
-            line-height: 1.9;
+        
+        .profile-text {
+            flex: 1; /* 3/4の幅 */
+            text-align: left;
         }
-        .about-text h3 {
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
-        .about-text h4 {
-            font-size: 20px;
-            margin-top: 40px;
-            margin-bottom: 15px;
-            border-left: 3px solid var(--accent-color);
-            padding-left: 10px;
-        }
-        .about-text p {
+        
+        .profile-text p {
+            font-size: 16px;
+            line-height: 1.8;
             margin-bottom: 1.5em;
+            color: var(--text-color);
         }
-        .about-text ul {
-            list-style: none;
-            padding-left: 0;
+        
+        /* SNS セクション */
+        .about-sns-section {
+            text-align: center;
         }
-        .about-text li {
-            margin-bottom: 0.8em;
-            padding-left: 1.4em;
-            position: relative;
-        }
-        .about-text li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--accent-color);
-            font-weight: bold;
+        
+        .about-sns-section .social-links {
+            justify-content: center;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -705,39 +893,59 @@
 
         <section id="about" class="page-section">
             <h2 class="section-title">About</h2>
-            <div class="about-content">
-                <div class="about-me-detailed">
-                    <div class="about-photo"></div>
-                    <div class="about-text">
-                        <h3>石田 哲大 / Tetsuhiro Ishida</h3>
-                        <p>個人事業主の編集者です。起業家、デザイナー、研究者へのインタビューや、抽象度が高い概念の言語化（コンセプトエディティング）を軸に、企業やクリエイターの課題解決を支援しています。</p>
-                        <p>いわゆる"編集者"と聞くと、メディア記事や書籍制作が仕事というイメージがありますが、実際は法人運営から事業立ち上げ、未来に向けた経営コンセプトの言語化まで幅広いご相談があります。</p>
+            
+            <!-- About Me セクション（ワイド幅・中央揃え） -->
+            <div class="about-intro-section">
+                <h3>About Me</h3>
+                <p>個人事業主の編集者です。起業家、デザイナー、研究者へのインタビューや、抽象度が高い概念の言語化（コンセプトエディティング）を軸に、企業やクリエイターの課題解決を支援しています。</p>
+                <p>いわゆる"編集者"と聞くと、メディア記事や書籍制作が仕事というイメージがありますが、実際は法人運営から事業立ち上げ、未来に向けた経営コンセプトの言語化まで幅広いご相談があります。</p>
+            </div>
+            
+            <!-- Service セクション（ワイド幅・中央揃え） -->
+            <div class="about-service-section">
+                <h3>Service</h3>
+                <p>コンセプト設計やブランディング、新規事業への伴走といった案件を中心に取り組んでいます。BTCA（ビジネス／テクノロジー／クリエイティブ／アカデミック）領域を横断して先端トピックを把握し、実装まで見据えて並走するスタイルを大切にしています。</p>
+                <ul class="service-list">
+                    <li><strong>コンセプトエディティング</strong>: 事業、サービス、組織のビジョン・ミッション・バリューの言語化支援</li>
+                    <li><strong>インタビュー・執筆</strong>: 起業家、デザイナー、研究者など、専門家の思考や哲学を深く引き出す取材と記事制作</li>
+                    <li><strong>メディア戦略</strong>: オウンドメディアの立ち上げ、コンテンツ企画、編集体制の構築</li>
+                    <li><strong>事業開発支援</strong>: 新規事業の壁打ち、コンセプト検証、資料作成サポート</li>
+                </ul>
+            </div>
+            
+            <!-- Profile セクション（左側1/4アイコン・右側3/4プロフィール文） -->
+            <div class="about-profile-section">
+                <h3>Profile</h3>
+                <div class="profile-content">
+                    <div class="profile-photo">
+                        <div class="about-photo-circle"></div>
+                    </div>
+                    <div class="profile-text">
+                        <p>石田哲大（いしだ・てつひろ）<br>
+                        編集者。国際基督教大学卒業（政治思想専攻）。1992年北海道生まれ。</p>
                         
-                        <h4>Service</h4>
-                        <p>コンセプト設計やブランディング、新規事業への伴走といった案件を中心に取り組んでいます。BTCA（ビジネス／テクノロジー／クリエイティブ／アカデミック）領域を横断して先端トピックを把握し、実装まで見据えて並走するスタイルを大切にしています。</p>
-                        <ul>
-                            <li><strong>コンセプトエディティング</strong>: 事業、サービス、組織のビジョン・ミッション・バリューの言語化支援</li>
-                            <li><strong>インタビュー・執筆</strong>: 起業家、デザイナー、研究者など、専門家の思考や哲学を深く引き出す取材と記事制作</li>
-                            <li><strong>メディア戦略</strong>: オウンドメディアの立ち上げ、コンテンツ企画、編集体制の構築</li>
-                            <li><strong>事業開発支援</strong>: 新規事業の壁打ち、コンセプト検証、資料作成サポート</li>
-                        </ul>
-
-                        <h4>Profile</h4>
-                        <p>1991年生まれ。編集者。新卒でITメガベンチャーに入社し、BtoBマーケティングに従事。その後、ドローンスタートアップに創業メンバーとして参画し、事業開発を担当。ハードウェアの製造・販売から、SaaSプロダクトの開発・セールスまで、職能を限定せず幅広く経験。2024年に独立。「正解のない問いに対して筋道を立て、情報と人を巻き込みながら形にしていく」という事業開発の経験を核に、実装まで見据えた編集を得意とする。</p>
+                        <p>新卒でワークスアプリケーションズ入社、ITコンサルタントとしてキャリアをスタート。その後、創業期ドローンスタートアップの事業部門立ち上げに参画し、複数の新規事業開発を実行。特に農業領域のメーカー事業では、プロダクトマネージャーとして製品戦略から市場投入、生産管理まで一貫して担当。株式会社アンドパッドにてPMを務めた後、独立。</p>
                         
-                        <h4>SNS</h4>
-                        <div class="social-links" style="justify-content: flex-start; margin-top: 20px; margin-bottom: 20px;">
-                            <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></a>
-                            <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-4.48 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"></path></svg></a>
-                            <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.012 3.584-.07 4.85c-.148 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.85s.012-3.584.07-4.85c.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.947s-.014-3.667-.072-4.947c-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"></path></svg></a>
-                        </div>
-
-                        <h4>Column</h4>
-                        <p>執筆した記事や、登壇資料などをまとめています。</p>
-                        <a href="#articles" class="view-all-button nav-link">View All Articles</a>
-
+                        <p>会社員時代には複業で編集プロダクションに所属。スタートアップやVCの取材を数多く経験。独立後はデザイン、先端テクノロジー、人文・社会科学系まで領域を拡張。現在は起業家、デザイナー、研究者への取材・編集をメインに活動中。</p>
                     </div>
                 </div>
+            </div>
+            
+            <!-- SNS セクション -->
+            <div class="about-sns-section">
+                <h3>SNS</h3>
+                <div class="social-links">
+                    <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></a>
+                    <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-4.48 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"></path></svg></a>
+                    <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.012 3.584-.07 4.85c-.148 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.85s.012-3.584.07-4.85c.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.947s-.014-3.667-.072-4.947c-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"></path></svg></a>
+                </div>
+            </div>
+
+            <!-- Column セクション（ワイド幅・中央揃え） -->
+            <div class="about-column-section">
+                <h3>Column</h3>
+                <p>執筆した記事や、登壇資料などをまとめています。</p>
+                <a href="#articles" class="view-all-button nav-link">View All Articles</a>
             </div>
         </section>
 
