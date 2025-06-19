@@ -271,6 +271,8 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            overflow: hidden;
+            position: relative;
         }
         .project-card-image.loading {
             background-color: #f0f0f0;
@@ -953,7 +955,11 @@
 
                 if (data.image) {
                     imageDiv.style.backgroundImage = `url('${data.image}')`;
+                    imageDiv.style.backgroundSize = 'cover';
+                    imageDiv.style.backgroundPosition = 'center';
+                    imageDiv.style.backgroundRepeat = 'no-repeat';
                     imageDiv.style.color = 'transparent'; // 文字を透明にして画像を表示
+                    imageDiv.textContent = ''; // テキストを削除
                 } else {
                     // OGP画像がない場合はタイトルを表示
                     imageDiv.textContent = data.title || imageDiv.textContent;
