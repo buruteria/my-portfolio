@@ -696,8 +696,12 @@
                 const data = await callNotionApi(ARTICLES_DATABASE_ID, null, sorts);
                 allArticlesData = data.results;
                 
-                // ソート機能を一旦無効化（プロパティ名の確認が必要）
-                // 必要に応じて後で有効化
+                // JavaScriptで作成日時の降順ソート（新しい順）
+                allArticlesData.sort((a, b) => {
+                    const dateA = new Date(a.created_time || 0);
+                    const dateB = new Date(b.created_time || 0);
+                    return dateB - dateA; // 降順（新しい順）
+                });
                 
                 // デフォルトカテゴリを 'Design' に設定
                 const defaultCategory = 'Design';
