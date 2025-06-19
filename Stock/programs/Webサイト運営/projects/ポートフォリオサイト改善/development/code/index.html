@@ -489,6 +489,30 @@
             height: 16px;
             flex-shrink: 0;
         }
+        
+        /* --- Custom List Styles (Restored) --- */
+        .custom-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .custom-list li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 1em;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #444;
+        }
+        .custom-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0.5em;
+            top: -0.1em;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
 
         /* --- ▼ カード内タグ用のスタイルを追加 ▼ --- */
 .card-tags {
@@ -997,7 +1021,31 @@
         }
         
         function formatText(text) {
-            return text.replace(/\n/g, '<br>');
+            if (!text) return '';
+            
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            let html = '';
+            let inList = false;
+
+            for (const line of lines) {
+                if (line.startsWith('- ')) {
+                    if (!inList) {
+                        html += '<ul class="custom-list">';
+                        inList = true;
+                    }
+                    html += `<li>${line.substring(2).trim()}</li>`;
+                } else {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += `<p>${line}</p>`;
+                }
+            }
+            if (inList) {
+                html += '</ul>';
+            }
+            return html;
         }
 
         function openProjectModal(projectId) {
