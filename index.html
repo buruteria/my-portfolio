@@ -767,11 +767,13 @@
             color: var(--accent-color);
         }
         
-        /* About Me・Service・Column セクション（左詰め・ワイド） */
+        /* About Me・Service・Column セクション（左詰め・幅制限） */
         .about-intro-section,
         .about-service-section,
         .about-column-section {
             text-align: left;
+            max-width: 720px;
+            margin: 0 auto 40px auto;
         }
         
         .about-intro-section p,
@@ -788,7 +790,7 @@
             list-style: none;
             padding-left: 0;
             text-align: left;
-            max-width: 700px;
+            max-width: 720px;
             margin: 30px auto;
         }
         
@@ -810,6 +812,10 @@
         }
         
         /* Profile セクション（左1/4・右3/4レイアウト） */
+        .about-profile-section {
+            max-width: 720px;
+            margin: 0 auto 40px auto;
+        }
         .profile-content {
             display: flex;
             gap: 60px;
@@ -849,6 +855,8 @@
         /* SNS セクション */
         .about-sns-section {
             text-align: center;
+            max-width: 720px;
+            margin: 0 auto 40px auto;
         }
         
         .about-sns-section .social-links {
