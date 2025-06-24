@@ -168,6 +168,20 @@
             background-color: var(--accent-color);
             color: var(--bg-color);
         }
+        .view-more-button {
+            display: inline-block;
+            padding: 8px 16px;
+            border: 1px solid var(--accent-color);
+            margin-top: 20px;
+            transition: all 0.2s;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .view-more-button:hover {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
 
         .main-visual {
             width: 100%;
@@ -883,9 +897,9 @@
             <div class="about-me">
                 <div class="photo" style="background-image: url('profile.jpg'); background-size: cover; background-position: center;"></div>
                 <div>
-                    <h3>About Me</h3>
-                    <p>石田哲大<br>
+                    <p><strong>石田哲大</strong><br>
                     編集者（個人事業主）。起業家、デザイナー、研究者へのインタビュー取材や編集をメインに活動しています。国際基督教大学（ICU）卒。92年北海道生まれ。</p>
+                    <a href="#about" class="view-more-button nav-link">View More</a>
                 </div>
             </div>
             <div class="social-links">
