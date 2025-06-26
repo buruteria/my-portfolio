@@ -1411,9 +1411,20 @@
             const relatedUrl = props[PROP_NAMES.project.url]?.url || '';
             const attachedImage = props[PROP_NAMES.project.image]?.files[0]?.file?.url || props[PROP_NAMES.project.image]?.files[0]?.external?.url || '';
 
-            // URLにリンクを自動検出・変換する関数
+            // URLにリンクを自動検出・変換する関数（先にURLリンク化してからformatText適用）
             function formatTextWithLinks(text) {
-                const urlRegex = /(https?:\/\/[^\s]+)/g;
+                if (!text) return '';
+                // まずURLをリンクに変換
+                const urlRegex = /(https?:\/\/[^\s<]+)/g;
+                const linkedText = text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">$1</a>');
+                // その後formatTextを適用
+                return formatText(linkedText);
+            }
+
+            // シンプルなテキストのURL変換（formatTextを適用しない場合）
+            function addLinksToText(text) {
+                if (!text) return '';
+                const urlRegex = /(https?:\/\/[^\s<]+)/g;
                 return text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">$1</a>');
             }
 
@@ -1425,12 +1436,12 @@
                 <div class="project-modal-body">
                     <div id="ogp-card-container"></div>
                     
-                    ${summary ? `<div class="detail-item"><strong>サマリ</strong><div>${formatTextWithLinks(formatText(summary))}</div></div>` : ''}
-                    ${attachedImage ? `<div class="detail-item"><strong>添付画像</strong><div><img src="${attachedImage}" alt="プロジェクト画像" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 8px;"></div></div>` : ''}
-                    ${description ? `<div class="detail-item"><strong>プロジェクト概要</strong><div>${formatTextWithLinks(formatText(description))}</div></div>` : ''}
-                    ${client ? `<div class="detail-item"><strong>クライアント</strong><p>${formatTextWithLinks(client)}</p></div>` : ''}
+                    ${summary ? `<div class="detail-item"><strong>サマリ</strong><div>${formatTextWithLinks(summary)}</div></div>` : ''}
+                    ${attachedImage ? `<div class="detail-item"><img src="${attachedImage}" alt="プロジェクト画像" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 8px;"></div>` : ''}
+                    ${description ? `<div class="detail-item"><strong>プロジェクト概要</strong><div>${formatTextWithLinks(description)}</div></div>` : ''}
+                    ${client ? `<div class="detail-item"><strong>クライアント</strong><p>${addLinksToText(client)}</p></div>` : ''}
                     ${role ? `<div class="detail-item"><strong>担当役割</strong><p>${role}</p></div>` : ''}
-                    ${period ? `<div class="detail-item"><strong>制作期間</strong><p>${formatTextWithLinks(period)}</p></div>` : ''}
+                    ${period ? `<div class="detail-item"><strong>制作期間</strong><p>${addLinksToText(period)}</p></div>` : ''}
                 </div>
             `;
 
