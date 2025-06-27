@@ -1119,7 +1119,10 @@
                 url: 'URL',
                 publishedDate: '公開日',
                 client: '取引先',
-                role: 'Role'  // 元に戻す
+                role: 'Role',  // 元に戻す
+                media: 'Media',
+                featured: 'Featured',
+                priority: 'Priority'
             },
             project: {
                 title: 'プロジェクト名',
@@ -1348,10 +1351,11 @@
              const client = props[PROP_NAMES.project.client]?.rich_text.map(t => t.plain_text).join('') || '';
              const category = props[PROP_NAMES.project.category]?.select?.name || '';
              const relatedUrl = props[PROP_NAMES.project.url]?.url || '';
+             const attachedImage = props[PROP_NAMES.project.image]?.files[0]?.file?.url || props[PROP_NAMES.project.image]?.files[0]?.external?.url || '';
              
              const cardHtml = `
                 <div class="card project-card" data-project-id="${project.id}">
-                    <div class="project-card-image loading">${relatedUrl ? '読み込み中...' : (client || 'Client')}</div>
+                    <div class="project-card-image loading" ${attachedImage ? `style="background-image: url('${attachedImage}'); background-size: cover; background-position: center;"` : ''}>${!attachedImage && relatedUrl ? '読み込み中...' : (!attachedImage ? (client || 'Client') : '')}</div>
                     <div class="project-card-content">
                         <p class="project-card-title">${title}</p>
                         <p class="project-card-role">${category}</p>
@@ -1360,8 +1364,8 @@
             `;
             container.insertAdjacentHTML('beforeend', cardHtml);
             
-            // OGP画像を非同期で取得
-            if (relatedUrl) {
+            // OGP画像を非同期で取得（添付画像がない場合のみ）
+            if (!attachedImage && relatedUrl) {
                 const cardElement = container.lastElementChild;
                 fetchOgpImageForCard(relatedUrl, cardElement);
             }
@@ -1405,26 +1409,9 @@
             const summary = props[PROP_NAMES.project.summary]?.rich_text.map(t => t.plain_text).join('') || '';
             const client = props[PROP_NAMES.project.client]?.rich_text.map(t => t.plain_text).join('') || '';
             const period = props[PROP_NAMES.project.period]?.rich_text.map(t => t.plain_text).join('') || '';
-            const role = props[PROP_NAMES.project.role]?.multi_select?.map(item => item.name).join(', ') || '';
+            const roles = props[PROP_NAMES.project.role]?.multi_select || [];
             const relatedUrl = props[PROP_NAMES.project.url]?.url || '';
             const attachedImage = props[PROP_NAMES.project.image]?.files[0]?.file?.url || props[PROP_NAMES.project.image]?.files[0]?.external?.url || '';
-
-            // デバッグ用ログ
-            console.log('=== PROJECT MODAL DEBUG ===');
-            console.log('Project ID:', projectId);
-            console.log('Project role:', role);
-            console.log('Category property:', props[PROP_NAMES.project.category]);
-            console.log('PROP_NAMES.project.category:', PROP_NAMES.project.category);
-            console.log('All project properties:', props);
-            console.log('===========================');
-            
-            // 担当役割の詳細デバッグ
-            console.log('=== ROLE DEBUG ===');
-            console.log('PROP_NAMES.project.role:', PROP_NAMES.project.role);
-            console.log('Role property raw:', props['担当役割']);
-            console.log('Role property via PROP_NAMES:', props[PROP_NAMES.project.role]);
-            console.log('Available properties:', Object.keys(props));
-            console.log('==================');
 
             // URLにリンクを自動検出・変換する関数（先にURLリンク化してからformatText適用）
             function formatTextWithLinks(text) {
@@ -1450,10 +1437,7 @@
                 </div>
                 <div class="project-modal-body">
                     <div id="ogp-card-container"></div>
-                    <div style="margin-bottom: 30px; background: yellow; padding: 10px;">
-                        デバッグ: role="${role}" category="${props[PROP_NAMES.project.category]?.select?.name || 'なし'}"
-                        ${role ? `<br><span class="card-tag-pill" style="display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 500; background-color: #f0f0f0; color: #555; border-radius: 999px;">#${role}</span>` : '<br>roleが空です'}
-                    </div>
+                    ${roles.length > 0 ? `<div style="margin-bottom: 20px;">${roles.map(role => `<span class="card-tag-pill" style="display: inline-block; margin-right: 8px; margin-bottom: 8px; padding: 4px 10px; font-size: 11px; font-weight: 500; background-color: #f0f0f0; color: #555; border-radius: 999px;">#${role.name}</span>`).join('')}</div>` : ''}
                     
                     ${summary ? `<div class="detail-item"><strong>サマリ</strong><div>${formatTextWithLinks(summary)}</div></div>` : ''}
                     ${attachedImage ? `<div class="detail-item"><img src="${attachedImage}" alt="プロジェクト画像" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 8px;"></div>` : ''}
