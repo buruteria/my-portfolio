@@ -1410,6 +1410,10 @@
             const relatedUrl = props[PROP_NAMES.project.url]?.url || '';
             const attachedImage = props[PROP_NAMES.project.image]?.files[0]?.file?.url || props[PROP_NAMES.project.image]?.files[0]?.external?.url || '';
 
+            // デバッグ用ログ
+            console.log('Project role:', role);
+            console.log('Project properties:', props);
+
             // URLにリンクを自動検出・変換する関数（先にURLリンク化してからformatText適用）
             function formatTextWithLinks(text) {
                 if (!text) return '';
@@ -1434,7 +1438,7 @@
                 </div>
                 <div class="project-modal-body">
                     <div id="ogp-card-container"></div>
-                    ${role ? `<div style="margin-bottom: 30px;"><span class="card-tag-pill">#${role}</span></div>` : ''}
+                    ${role ? `<div style="margin-bottom: 30px;"><span class="card-tag-pill" style="display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 500; background-color: #f0f0f0; color: #555; border-radius: 999px;">#${role}</span></div>` : ''}
                     
                     ${summary ? `<div class="detail-item"><strong>サマリ</strong><div>${formatTextWithLinks(summary)}</div></div>` : ''}
                     ${attachedImage ? `<div class="detail-item"><img src="${attachedImage}" alt="プロジェクト画像" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 8px;"></div>` : ''}
