@@ -1464,10 +1464,16 @@
 
         async function fetchOgpData(url) {
             const container = document.getElementById('ogp-card-container');
-            if (!container) return;
+            if (!container) {
+                console.log('OGP container not found');
+                return;
+            }
+            
+            console.log('Fetching OGP data for URL:', url);
             
             // キャッシュチェック
             if (ogpCache.has(url)) {
+                console.log('Using cached OGP data');
                 const cachedData = ogpCache.get(url);
                 renderOgpCard(container, url, cachedData);
                 return;
@@ -1480,6 +1486,7 @@
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒でタイムアウト
 
+                console.log('Making fetch request to OGP fetcher...');
                 const response = await fetch('/.netlify/functions/ogp-fetcher', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1488,9 +1495,11 @@
                 });
 
                 clearTimeout(timeoutId);
+                console.log('OGP fetch response status:', response.status);
 
                 if (!response.ok) throw new Error('Response not OK');
                 const data = await response.json();
+                console.log('OGP data received:', data);
 
                 if (!data.title) {
                     throw new Error('No OGP data found');
@@ -1525,7 +1534,8 @@
                 <a href="${url}" target="_blank" rel="noopener noreferrer" class="ogp-card">
                     ${imageHtml}
                     <div class="ogp-card-info">
-                        <div class="ogp-card-description">${truncatedDescription}</div>
+                        <div class="ogp-card-title">${data.title || ''}</div>
+                        <div class="ogp-card-description">${truncatedDescription || ''}</div>
                         <div class="ogp-card-url">
                             ${data.favicon ? `<img src="${data.favicon}" alt="" onerror="this.style.display='none'">` : ''}
                             <span>${data.siteName || new URL(url).hostname}</span>
