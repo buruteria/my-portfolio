@@ -1412,6 +1412,14 @@
             const relatedUrl = props[PROP_NAMES.project.url]?.url || '';
             const attachedImage = props[PROP_NAMES.project.image]?.files[0]?.file?.url || props[PROP_NAMES.project.image]?.files[0]?.external?.url || '';
 
+            // デバッグ: プロパティの確認
+            console.log('=== PROJECT PROPERTIES DEBUG ===');
+            console.log('PROP_NAMES.project.url:', PROP_NAMES.project.url);
+            console.log('URL property raw:', props[PROP_NAMES.project.url]);
+            console.log('URL property value:', props[PROP_NAMES.project.url]?.url);
+            console.log('Available properties:', Object.keys(props));
+            console.log('================================');
+
             // URLにリンクを自動検出・変換する関数（先にURLリンク化してからformatText適用）
             function formatTextWithLinks(text) {
                 if (!text) return '';
