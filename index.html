@@ -1419,6 +1419,14 @@
             console.log('PROP_NAMES.project.category:', PROP_NAMES.project.category);
             console.log('All project properties:', props);
             console.log('===========================');
+            
+            // 担当役割の詳細デバッグ
+            console.log('=== ROLE DEBUG ===');
+            console.log('PROP_NAMES.project.role:', PROP_NAMES.project.role);
+            console.log('Role property raw:', props['担当役割']);
+            console.log('Role property via PROP_NAMES:', props[PROP_NAMES.project.role]);
+            console.log('Available properties:', Object.keys(props));
+            console.log('==================');
 
             // URLにリンクを自動検出・変換する関数（先にURLリンク化してからformatText適用）
             function formatTextWithLinks(text) {
