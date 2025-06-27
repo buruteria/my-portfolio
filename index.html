@@ -1451,12 +1451,17 @@
             
             // モーダルを即座に表示してからOGPを非同期で取得
             setTimeout(() => {
+                console.log('=== OGP DEBUG START ===');
+                console.log('Related URL:', relatedUrl);
                 if (relatedUrl) {
+                    console.log('Calling fetchOgpData...');
                     fetchOgpData(relatedUrl);
                 } else {
+                    console.log('No related URL found, hiding OGP container');
                     const ogpContainer = document.getElementById('ogp-card-container');
                     if (ogpContainer) ogpContainer.style.display = 'none';
                 }
+                console.log('=== OGP DEBUG END ===');
             }, 0);
 
             pageElements.projectModalContent.querySelector('.project-modal-close').addEventListener('click', closeProjectModal);
